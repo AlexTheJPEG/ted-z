@@ -18,6 +18,8 @@ class Bot(crescent.Bot, ABC):
             intents=hikari.Intents.ALL_UNPRIVILEGED
         )
 
+        self.plugins.load_folder("ted-z.plugins")
+
         self._session: aiohttp.ClientSession | None = None
 
     def session(self) -> aiohttp.ClientSession:
