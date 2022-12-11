@@ -1,11 +1,10 @@
 from abc import ABC
+from typing import Any
 
 import aiohttp
-import hikari
 import crescent
+import hikari
 import tomli
-
-from typing import Any
 
 with open("bot_settings.toml", mode="rb") as fp:
     config = tomli.load(fp)
