@@ -1,13 +1,15 @@
 [tool.poetry]
 name = "ted-z"
 version = "0.1.0"
-description = ""
-authors = ["Your Name <you@example.com>"]
+description = "Just another Discord bot written in Python! (this is the last revision i swear)"
+authors = ["Alex The JPEG <alexthejpeg@gmail.com>"]
 
 [tool.poetry.dependencies]
 python = ">=3.10,<3.11"
 hikari-crescent = "^0.3.5"
 tomli = "^2.0.1"
+eight-ball = "^3.0.3"
+dice = "^3.1.2"
 
 [tool.poetry.dev-dependencies]
 
