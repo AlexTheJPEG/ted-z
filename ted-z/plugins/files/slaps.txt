@@ -1,0 +1,30 @@
+:raised_hand: :anger: You slapped {}.
+:raised_hand: :anger: You slapped some sense into {}.
+:raised_hand: :anger: You slapped {} a good one.
+:raised_hand: :rage: You slapped {} a million times!
+:raised_hand: :zany_face: You slapped {} silly.
+:raised_hand: :sob: You slapped {} so much they started crying...
+:raised_hand: :sweat: You tried to slap {}, but you missed!
+:raised_hand: :dizzy_face: You tried to slap {}, but they slap back!
+:raised_hand: :dizzy_face: You tried to slap {}, but it's opposite day! OH NOOOOOO-
+:raised_hand: :smirk: You slapped {}, but not on the face...
+:raised_hand: :nauseated_face: You slapped {} because what they just said was cringe.
+:raised_hand: :clown: You slapped {} for being the entire circus.
+:raised_hand: :calendar_spiral: You slapped {} into next week.
+:raised_hand: :anger: You slapped {} so hard you made a dent on their face.
+:raised_hand: :sleeping: You slapped {} so hard you knocked them unconscious.
+:raised_hand: :melting_face: You slapped {} so hard they started to melt somehow.
+:raised_hand: :bricks: You slapped {} and they flew into a brick wall.
+:raised_hand: :magic_wand: You slapped {} and they instantly disintegrated.
+:raised_hand: :bomb: You slapped {} so hard they exploded.
+:raised_hand: :sunglasses: You slapped {} before walking away coolly from the explosion.
+:raised_hand: :scream: You slapped {} so hard they...oh god, I can't even describe what happened to them...
+:raised_hand: :thinking: You tried to slap {}, but you realized they have a point.
+:raised_hand: :angry: You slapped {}. That was very rude.
+:raised_hand: :tired_face: Hey, don't slap {}! I slap you.
+:raised_hand: :dizzy_face: :dizzy_face: You slapped {}, but both of you are dumb, so I slap both of you.
+:raised_hand: :face_with_raised_eyebrow: You slapped {}, but it looked like they enjoyed it...
+:raised_hand: :cake: You tried to slap {}, but you both ended up playing patty cake.
+:raised_hand: :nerd: You slapped {}'s ribcage with a metal bar.
+:raised_hand: :ghost: You slapped the soul out of {}.
+:raised_hand: :people_hugging: You tried to slap {}, but you realized your actions and you both worked out your differences.
