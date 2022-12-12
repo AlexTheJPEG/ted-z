@@ -215,45 +215,6 @@ files = [
 python-dateutil = "*"
 
 [[package]]
-name = "dice"
-version = "3.1.2"
-description = "A library for parsing and evaluating dice notation"
-category = "main"
-optional = false
-python-versions = "*"
-files = [
-    {file = "dice-3.1.2-py2.py3-none-any.whl", hash = "sha256:64305a094bf896bb81ec7d0cc24846202c8b52767f4661d052fda34e9d1d2774"},
-    {file = "dice-3.1.2.tar.gz", hash = "sha256:e3df477cfd7327f630867311169202db0cab67acf4de96c863c5c42623c5d4f4"},
-]
-
-[package.dependencies]
-docopt = ">=0.6.1"
-pyparsing = ">=2.4.1"
-
-[[package]]
-name = "docopt"
-version = "0.6.2"
-description = "Pythonic argument parser, that will make you smile"
-category = "main"
-optional = false
-python-versions = "*"
-files = [
-    {file = "docopt-0.6.2.tar.gz", hash = "sha256:49b3a825280bd66b3aa83585ef59c4a8c82f2c8a522dbe754a8bc8d08c85c491"},
-]
-
-[[package]]
-name = "eight-ball"
-version = "3.0.3"
-description = "8ball response generator."
-category = "main"
-optional = false
-python-versions = ">=3.4"
-files = [
-    {file = "eight_ball-3.0.3-py3-none-any.whl", hash = "sha256:8c2f919c0da427c6978bcdcf7f42fb29b6dbb1b2b6d5a765a617b5c57d180374"},
-    {file = "eight_ball-3.0.3.tar.gz", hash = "sha256:460e708eeb948d5b0967c0e83d982015b9ebc00150619b087537caa9d4810c4b"},
-]
-
-[[package]]
 name = "forbiddenfruit"
 version = "0.1.4"
 description = "Patch python built-in objects"
@@ -484,21 +445,6 @@ files = [
 mypy-extensions = ">=0.4.3,<0.5.0"
 
 [[package]]
-name = "pyparsing"
-version = "3.0.9"
-description = "pyparsing module - Classes and methods to define and execute parsing grammars"
-category = "main"
-optional = false
-python-versions = ">=3.6.8"
-files = [
-    {file = "pyparsing-3.0.9-py3-none-any.whl", hash = "sha256:5026bae9a10eeaefb61dab2f09052b9f4307d44aee4eda64b309723d8d206bbc"},
-    {file = "pyparsing-3.0.9.tar.gz", hash = "sha256:2b020ecf7d21b687f219b71ecad3631f644a47f01403fa1d1036b0c6416d70fb"},
-]
-
-[package.extras]
-diagrams = ["jinja2", "railroad-diagrams"]
-
-[[package]]
 name = "python-dateutil"
 version = "2.8.2"
 description = "Extensions to the standard Python datetime module"
@@ -640,4 +586,4 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.10,<3.11"
-content-hash = "cdf15ec151707806b1d7450c686aebc41523855c03886a1c8df401724d3d96ca"
+content-hash = "ab29574710e0a4198041cad70c9d187838622412717aff43df0018a86d07dc78"

@@ -8,8 +8,6 @@ authors = ["Alex The JPEG <alexthejpeg@gmail.com>"]
 python = ">=3.10,<3.11"
 hikari-crescent = "^0.3.5"
 tomli = "^2.0.1"
-eight-ball = "^3.0.3"
-dice = "^3.1.2"
 
 [tool.poetry.dev-dependencies]
 

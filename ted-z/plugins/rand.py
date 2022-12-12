@@ -2,19 +2,38 @@ import random
 from typing import Annotated as Atd
 
 import crescent
-import dice
-import eight_ball
 import hikari
 
 plugin = crescent.Plugin()
+
+EB_RESPONSES = ["It is certain.",
+                "It is decidedly so.",
+                "Without a doubt.",
+                "Yes definitely.",
+                "You may rely on it.",
+                "As I see it, yes.",
+                "Most likely.",
+                "Outlook good.",
+                "Yes.",
+                "Signs point to yes.",
+                "Reply hazy, try again.",
+                "Ask again later.",
+                "Better not tell you now.",
+                "Cannot predict now.",
+                "Concentrate and ask again.",
+                "Don't count on it.",
+                "My reply is no.",
+                "My sources say no.",
+                "Outlook not so good.",
+                "Very doubtful."]
 
 
 @plugin.include
 @crescent.command(name="8ball", description="Ask the magic 8-Ted a question")
 async def eightball(ctx: crescent.Context, question: Atd[str, "The question to ask (must end in '?')"]) -> None:
-    ball = eight_ball.ball()
+    response = random.choice(EB_RESPONSES)
     if question[-1] == '?':
-        await ctx.respond(f":speech_balloon: \"{question}\"\n\n:8ball: {ball.response(question)}")
+        await ctx.respond(f":speech_balloon: \"{question}\"\n\n:8ball: {response}")
     else:
         await ctx.respond("Your question must end in '?'.")
 
@@ -25,7 +44,8 @@ async def roll(ctx: crescent.Context,
                number: Atd[int, "Number of dice (default: 1)", crescent.MaxValue(100),] | None = 1,
                sides: Atd[int, "Number of sides on each die (default: 6)", crescent.MaxValue(100)] | None = 6) -> None:
     dice_notation = f"{number}d{sides}"
-    await ctx.respond(f":game_die: Rolled a {dice_notation} and got:\n\n{dice.roll(dice_notation)}")
+    dice_rolls = [random.randint(1, sides) for _ in range(number)]
+    await ctx.respond(f":game_die: Rolled a {dice_notation} and got:\n\n{dice_rolls}")
 
 
 @plugin.include
