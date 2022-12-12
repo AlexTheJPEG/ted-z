@@ -46,6 +46,7 @@ async def coin(ctx: crescent.Context) -> None:
 async def lottery(ctx: crescent.Context,
                   lottery_type: Atd[
                       str,
+                      "The name of the lottery",
                       crescent.Choices(
                           hikari.CommandChoice(name="Powerball", value="powerball"),
                           hikari.CommandChoice(name="Mega Millions", value="megamillions"),
