@@ -38,15 +38,6 @@ async def coin(ctx: crescent.Context) -> None:
 
 
 @plugin.include
-@crescent.command(name="coin", description="Flip a coin")
-async def coin(ctx: crescent.Context) -> None:
-    if random.randint(0, 1):
-        await ctx.respond(f":coin: It's heads.")
-    else:
-        await ctx.respond(f":coin: It's tails.")
-
-
-@plugin.include
 @crescent.command(name="lottery", description="Draw some lottery numbers")
 async def lottery(ctx: crescent.Context,
                   lottery_type: Atd[
