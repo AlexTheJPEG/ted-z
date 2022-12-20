@@ -17,7 +17,7 @@ class Bot(crescent.Bot, ABC):
             intents=hikari.Intents.ALL_UNPRIVILEGED
         )
 
-        self.plugins.load_folder("ted-z.plugins")
+        self.plugins.load_folder("plugins")
 
         self._session: aiohttp.ClientSession | None = None
 
