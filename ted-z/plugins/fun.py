@@ -1,8 +1,10 @@
 import os
+import json
 import random
 
 import crescent
 import hikari
+import requests
 
 real_path = os.path.realpath(__file__)
 dir_path = os.path.dirname(real_path)
@@ -10,6 +12,11 @@ with open(f"{dir_path}/files/slaps.txt", 'r') as file:
     SLAPS = [line.strip() for line in file.readlines()]
 
 plugin = crescent.Plugin()
+
+HEADERS = {
+  "User-Agent": "Mozilla/5.0 (Windows NT 10.0; rv:91.0) Gecko/20100101 Firefox/91.0",
+  "Accept": "text/plain"
+}
 
 
 @plugin.include
@@ -65,3 +72,12 @@ class GroundCommand:
 class TheGameCommand:
     async def callback(self, ctx: crescent.Context) -> None:
         await ctx.respond("I lost The Game.")
+
+
+@plugin.include
+@crescent.command(name="joke", description="Tell a random joke")
+class JokeCommand:
+    # TODO: Add filters
+    async def callback(self, ctx: crescent.Context) -> None:
+        response = requests.get("https://icanhazdadjoke.com/", headers=HEADERS)
+        await ctx.respond(response.text)
