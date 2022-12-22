@@ -76,7 +76,6 @@ class TheGameCommand:
 @plugin.include
 @crescent.command(name="joke", description="Tell a random joke")
 class JokeCommand:
-    # TODO: Add filters
     async def callback(self, ctx: crescent.Context) -> None:
         response = requests.get("https://icanhazdadjoke.com/", headers=HEADERS)
         await ctx.respond(response.text)
