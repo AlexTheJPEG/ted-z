@@ -1,15 +1,16 @@
+import os
 import random
 from typing import Annotated as Atd
 
 import crescent
 import hikari
 
-from util.helper import get_dir_path
+real_path = os.path.realpath(__file__)
+dir_path = os.path.dirname(real_path)
+with open(f"{dir_path}/files/slaps.txt", 'r') as file:
+    SLAPS = [line.strip() for line in file.readlines()]
 
 plugin = crescent.Plugin()
-
-with open(f"{get_dir_path(__file__)}/files/slaps.txt", 'r') as file:
-    SLAPS = [line.strip() for line in file.readlines()]
 
 
 @plugin.include
