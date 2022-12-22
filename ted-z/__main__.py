@@ -13,8 +13,7 @@ with open("bot_settings.toml", mode="rb") as fp:
 class Bot(crescent.Bot, ABC):
     def __init__(self) -> None:
         super().__init__(
-            token=config["bot"]["token"],
-            intents=hikari.Intents.ALL_UNPRIVILEGED
+            token=config["bot"]["token"], intents=hikari.Intents.ALL_UNPRIVILEGED
         )
 
         self.plugins.load_folder("ted-z.plugins")

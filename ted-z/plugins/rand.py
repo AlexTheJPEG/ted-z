@@ -5,7 +5,7 @@ import crescent
 
 real_path = os.path.realpath(__file__)
 dir_path = os.path.dirname(real_path)
-with open(f"{dir_path}/files/eb_responses.txt", 'r') as file:
+with open(f"{dir_path}/files/eb_responses.txt", "r") as file:
     EB_RESPONSES = [line.strip() for line in file.readlines()]
 
 plugin = crescent.Plugin()
@@ -18,8 +18,10 @@ class EightBallCommand:
 
     async def callback(self, ctx: crescent.Context) -> None:
         response = random.choice(EB_RESPONSES)
-        if self.question[-1] == '?':
-            await ctx.respond(f":speech_balloon: \"{self.question}\"\n\n:8ball: {response}")
+        if self.question[-1] == "?":
+            await ctx.respond(
+                f':speech_balloon: "{self.question}"\n\n:8ball: {response}'
+            )
         else:
             await ctx.respond("Your question must end in '?'.")
 
@@ -33,7 +35,9 @@ class RollCommand:
     async def callback(self, ctx: crescent.Context) -> None:
         dice_notation = f"{self.number}d{self.sides}"
         dice_rolls = [random.randint(1, self.sides) for _ in range(self.number)]
-        await ctx.respond(f":game_die: Rolled a {dice_notation} and got:\n\n{dice_rolls}")
+        await ctx.respond(
+            f":game_die: Rolled a {dice_notation} and got:\n\n{dice_rolls}"
+        )
 
 
 @plugin.include
@@ -49,15 +53,17 @@ class CoinCommand:
 @plugin.include
 @crescent.command(name="lottery", description="Draw some lottery numbers")
 class LotteryCommand:
-    lottery_type = crescent.option(str, "The lottery game to choose numbers for",
+    lottery_type = crescent.option(
+        str,
+        "The lottery game to choose numbers for",
         choices=(
             ("Powerball", "powerball"),
             ("Mega Millions", "megamillions"),
             ("EuroMillions", "euromillions"),
-        )
+        ),
     )
 
-    async def callback(self, ctx:crescent.Context) -> None:
+    async def callback(self, ctx: crescent.Context) -> None:
         match self.lottery_type:
             case "powerball":
                 # (USA) Powerball
@@ -68,7 +74,7 @@ class LotteryCommand:
                 await ctx.respond(
                     ":moneybag: Here are your Powerball numbers:"
                     f"\n\n{five_numbers_formatted} **({powerball_number})**",
-                    ephemeral=True
+                    ephemeral=True,
                 )
             case "megamillions":
                 # (USA) Mega Millions
@@ -79,7 +85,7 @@ class LotteryCommand:
                 await ctx.respond(
                     ":moneybag: Here are your Mega Millions numbers:"
                     f"\n\n{five_numbers_formatted} **({megaball_number})**",
-                    ephemeral=True
+                    ephemeral=True,
                 )
             case "euromillions":
                 # (EUR) EuroMillions
@@ -87,9 +93,11 @@ class LotteryCommand:
                 five_numbers = [random.randint(1, 50) for _ in range(5)]
                 five_numbers_formatted = ", ".join(list(map(str, five_numbers)))
                 lucky_star_numbers = [random.randint(1, 12) for _ in range(2)]
-                lucky_star_numbers_formatted = " ".join(list(map(str, lucky_star_numbers)))
+                lucky_star_numbers_formatted = " ".join(
+                    list(map(str, lucky_star_numbers))
+                )
                 await ctx.respond(
                     ":moneybag: Here are your EuroMillions numbers:"
                     f"\n\n{five_numbers_formatted} **({lucky_star_numbers_formatted})**",
-                    ephemeral=True
+                    ephemeral=True,
                 )

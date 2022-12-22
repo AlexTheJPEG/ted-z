@@ -7,14 +7,14 @@ import requests
 
 real_path = os.path.realpath(__file__)
 dir_path = os.path.dirname(real_path)
-with open(f"{dir_path}/files/slaps.txt", 'r') as file:
+with open(f"{dir_path}/files/slaps.txt", "r") as file:
     SLAPS = [line.strip() for line in file.readlines()]
 
 plugin = crescent.Plugin()
 
 HEADERS = {
-  "User-Agent": "Mozilla/5.0 (Windows NT 10.0; rv:91.0) Gecko/20100101 Firefox/91.0",
-  "Accept": "text/plain"
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; rv:91.0) Gecko/20100101 Firefox/91.0",
+    "Accept": "text/plain",
 }
 
 
@@ -22,7 +22,7 @@ HEADERS = {
 @crescent.command(name="slap", description="Slap someone")
 class SlapCommand:
     user = crescent.option(hikari.User, "The person you want to slap")
-    
+
     async def callback(self, ctx: crescent.Context) -> None:
         response = random.choice(SLAPS)
 
@@ -52,7 +52,7 @@ class GroundCommand:
     reason = crescent.option(str, "The reason you're grounding them")
 
     def create_ground_string(self, groundee, reason):
-        time = random.randrange(10 ** 50, 10 ** 51)
+        time = random.randrange(10**50, 10**51)
         oh = "OH" * random.randint(15, 30)
         grounded = ("GROUNDED " * random.randint(3, 9)).strip()
         time_unit = random.choice(["YEARS", "CENTURIES", "EONS", "ETERNITIES"])
@@ -67,7 +67,9 @@ class GroundCommand:
 
 
 @plugin.include
-@crescent.command(name="thegame", description="You lost The Game. Now make everyone else lose it")
+@crescent.command(
+    name="thegame", description="You lost The Game. Now make everyone else lose it"
+)
 class TheGameCommand:
     async def callback(self, ctx: crescent.Context) -> None:
         await ctx.respond("I lost The Game.")

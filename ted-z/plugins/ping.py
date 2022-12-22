@@ -7,4 +7,4 @@ plugin = crescent.Plugin()
 @crescent.command(name="ping", description="Ping Ted")
 class PingCommand:
     async def callback(self, ctx: crescent.Context) -> None:
-        await ctx.respond(f":ping_pong: Pong! ({round(ctx.app.heartbeat_latency * 1000)} ms)") # type: ignore
+        await ctx.respond(f":ping_pong: Pong! ({round(ctx.app.heartbeat_latency * 1000)} ms)")  # type: ignore
