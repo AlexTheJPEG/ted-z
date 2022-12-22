@@ -49,7 +49,7 @@ def create_ground_string(groundee, reason):
 
 
 @plugin.include
-@crescent.command(name="slap", description="Ground someone")
+@crescent.command(name="ground", description="Ground someone")
 async def ground(ctx: crescent.Context,
                  user: Atd[hikari.User, "The person you want to ground"],
                  reason: Atd[str, "The reason you're grounding them"]) -> None:
