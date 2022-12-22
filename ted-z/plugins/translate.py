@@ -4,13 +4,10 @@ import random
 
 import crescent
 
-from translate import Translator
+from goslate import Goslate
 
-real_path = os.path.realpath(__file__)
-dir_path = os.path.dirname(real_path)
-with open(f"{dir_path}/files/langcodes.json", 'r') as file:
-    LANGUAGES = json.load(file)
-
+TRANSLATOR = Goslate()
+LANGUAGES = TRANSLATOR.get_languages()
 LANGUAGE_CODES = list(LANGUAGES.keys())
 LANGUAGE_CHOICES = [f"{k}: {v.title()}\n" for k, v in LANGUAGES.items()]
 
@@ -30,26 +27,22 @@ class LangCodesCommand:
 @plugin.include
 @crescent.command(name="translate", description="Translate a phrase from one language to another")
 class TranslateCommand:
+    source = crescent.option(str, "The source language (use \"detect\" to autodetect the language)")
+    destination = crescent.option(str, "The language to translate to")
     phrase = crescent.option(str, "The phrase to translate")
-    destination = crescent.option(str, "The langauge to translate to")
-    source = crescent.option(str, "The source language (auto-detects by default)", default=None)
 
     async def callback(self, ctx: crescent.Context) -> None:
-        # FIXME: Doesn't translate for some reason
-        match [self.source, self.destination]:
-            case [None, dest] if dest.lower() in LANGUAGE_CODES:
-                translator = Translator(to_lang=dest)
-                translation = translator.translate(self.phrase)
+        match (self.source, self.destination):
+            case ("detect", dest) if dest in LANGUAGE_CODES:
                 await ctx.respond(f"💬 **{self.phrase}** translated to {LANGUAGES[dest].title()}:"
-                                f"\n\n{translation}")
-            case [src, dest] if src.lower() in LANGUAGE_CODES and dest.lower() in LANGUAGE_CODES:
-                translator = Translator(from_lang=src, to_lang=dest)
-                translation = translator.translate(self.phrase)
+                                f"\n\n{TRANSLATOR.translate(text=self.phrase, target_language=dest)}")
+            case (src, dest) if src in LANGUAGE_CODES and dest in LANGUAGE_CODES:
                 await ctx.respond(f"💬 **{self.phrase}** translated from {LANGUAGES[src].title()} to {LANGUAGES[dest].title()}:"
-                                f"\n\n{translation}")
+                                f"\n\n{TRANSLATOR.translate(text=self.phrase, target_language=dest, source_language=src)}")
             case _:
-                await ctx.respond("❗ The source and/or desination language is invalid!"
-                                  "Use `/langcodes` to see what languages you can use.", ephemeral=True)
+                await ctx.respond(f"Either the source ({self.source}) or the destination ({self.destination}) language (or both) is invalid!"
+                                  "\n\nUse `/langcodes` to see what languages you can use. "
+                                  "You can also use \"detect\" as the source language to autodetect the language.")
 
 
 # TODO: Bad translate command

@@ -8,7 +8,7 @@ authors = ["Alex The JPEG <alexthejpeg@gmail.com>"]
 python = ">=3.10,<3.11"
 hikari-crescent = "^0.3.5"
 tomli = "^2.0.1"
-translate = "^3.6.1"
+goslate = "^1.5.4"
 
 [tool.poetry.dev-dependencies]
 
