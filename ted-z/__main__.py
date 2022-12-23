@@ -6,8 +6,8 @@ import crescent
 import hikari
 import tomli
 
-with open("bot_settings.toml", mode="rb") as fp:
-    config = tomli.load(fp)
+with open("bot_settings.toml", "rb") as file:
+    config = tomli.load(file)
 
 
 class Bot(crescent.Bot, ABC):
