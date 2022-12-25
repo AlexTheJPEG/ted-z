@@ -3,12 +3,12 @@ from ..utils.opening import load_json
 import argostranslate.translate
 import crescent
 
-LANGUAGES = load_json("langcodes.json")
+LANGUAGE_DICT = load_json("langcodes.json")
+LANGUAGE_DICT_REV = {value: key for key, value in LANGUAGE_DICT.items()}
 
-LANGUAGE_CODES = list(LANGUAGES.keys())
-LANGUAGE_NAMES = list(LANGUAGES.values())
-LANGUAGE_CHOICES = [f"{key}: {value.title()}\n" for key, value in LANGUAGES.items()]
-LANGUAGES_REVERSED = {value: key for key, value in LANGUAGES.items()}
+LANGUAGE_CODES = list(LANGUAGE_DICT.keys())
+LANGUAGES = LANGUAGE_CODES + list(LANGUAGE_DICT.values())
+LANGUAGE_CHOICES = [f"{key}: {value.title()}\n" for key, value in LANGUAGE_DICT.items()]
 
 # Uncomment these lines to install all the translation language models
 # import argostranslate.package
@@ -38,9 +38,7 @@ class LangCodesCommand:
 
 
 @plugin.include
-@crescent.command(
-    name="translate", description="Translate a phrase from one language to another"
-)
+@crescent.command(name="translate", description="Translate a phrase from one language to another")
 class TranslateCommand:
     source = crescent.option(
         str, "The source language"
@@ -51,32 +49,25 @@ class TranslateCommand:
     async def callback(self, ctx: crescent.Context) -> None:
         if self.source == "detect":
             # TODO: Add language detection; this library doesn't seem to have it
-            await ctx.respond(
-                "Sorry, language detection isn't a thing yet; try again later!"
-            )
+            await ctx.respond("Sorry, language detection isn't a thing yet; try again later!")
         else:
             match (self.source.lower(), self.destination.lower()):
-                case (
-                    src,
-                    dest,
-                ) if src in LANGUAGE_CODES + LANGUAGE_NAMES and dest in LANGUAGE_CODES + LANGUAGE_NAMES:
+                case (src, dest) if src in LANGUAGES and dest in LANGUAGES:
                     if len(src) != 2:
-                        src = LANGUAGES_REVERSED[src.lower()]
+                        src = LANGUAGE_DICT_REV[src.lower()]
                     if len(dest) != 2:
-                        dest = LANGUAGES_REVERSED[dest.lower()]
-                    translation = argostranslate.translate.translate(
-                        self.phrase, src, dest
-                    )
+                        dest = LANGUAGE_DICT_REV[dest.lower()]
+                    translation = argostranslate.translate.translate(self.phrase, src, dest)
                     await ctx.respond(
-                        f"💬 **{self.phrase}** translated from {LANGUAGES[src].title()} to {LANGUAGES[dest].title()}:"
+                        f"💬 **{self.phrase}** translated from {LANGUAGE_DICT[src].title()} to {LANGUAGE_DICT[dest].title()}:"
                         f"\n\n{translation}"
                     )
-                case (src, _) if src not in LANGUAGE_CODES + LANGUAGE_NAMES:
+                case (src, _) if src not in LANGUAGES:
                     await ctx.respond(
                         f"The source ({src}) language is either invalid or unsupported!"
                         "\n\nUse `/langcodes` to see what languages you can use."
                     )
-                case (_, dest) if dest not in LANGUAGE_CODES + LANGUAGE_NAMES:
+                case (_, dest) if dest not in LANGUAGES:
                     await ctx.respond(
                         f"The destination ({dest}) language is either invalid or unsupported!"
                         "\n\nUse `/langcodes` to see what languages you can use."

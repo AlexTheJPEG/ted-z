@@ -68,9 +68,7 @@ class GroundCommand:
 
 
 @plugin.include
-@crescent.command(
-    name="thegame", description="You lost The Game. Now make everyone else lose it"
-)
+@crescent.command(name="thegame", description="You lost The Game. Now make everyone else lose it")
 class TheGameCommand:
     async def callback(self, ctx: crescent.Context) -> None:
         await ctx.respond("I lost The Game.")

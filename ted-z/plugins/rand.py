@@ -17,9 +17,7 @@ class EightBallCommand:
     async def callback(self, ctx: crescent.Context) -> None:
         response = random.choice(EB_RESPONSES)
         if self.question[-1] == "?":
-            await ctx.respond(
-                f':speech_balloon: "{self.question}"\n\n:8ball: {response}'
-            )
+            await ctx.respond(f':speech_balloon: "{self.question}"\n\n:8ball: {response}')
         else:
             await ctx.respond("Your question must end in '?'.", ephemeral=True)
 
@@ -33,9 +31,7 @@ class RollCommand:
     async def callback(self, ctx: crescent.Context) -> None:
         dice_notation = f"{self.number}d{self.sides}"
         dice_rolls = [random.randint(1, self.sides) for _ in range(self.number)]
-        await ctx.respond(
-            f":game_die: Rolled a {dice_notation} and got:\n\n{dice_rolls}"
-        )
+        await ctx.respond(f":game_die: Rolled a {dice_notation} and got:\n\n{dice_rolls}")
 
 
 @plugin.include
@@ -91,9 +87,7 @@ class LotteryCommand:
                 five_numbers = [random.randint(1, 50) for _ in range(5)]
                 five_numbers_formatted = ", ".join(list(map(str, five_numbers)))
                 lucky_star_numbers = [random.randint(1, 12) for _ in range(2)]
-                lucky_star_numbers_formatted = " ".join(
-                    list(map(str, lucky_star_numbers))
-                )
+                lucky_star_numbers_formatted = " ".join(list(map(str, lucky_star_numbers)))
                 await ctx.respond(
                     ":moneybag: Here are your EuroMillions numbers:\n\n"
                     f"{five_numbers_formatted} **({lucky_star_numbers_formatted})**",
