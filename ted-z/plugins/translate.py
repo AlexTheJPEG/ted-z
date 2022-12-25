@@ -10,7 +10,9 @@ with open(f"{dir_path}/files/langcodes.json", "r") as file:
     LANGUAGES = json.load(file)
 
 LANGUAGE_CODES = list(LANGUAGES.keys())
-LANGUAGE_CHOICES = [f"{k}: {v.title()}\n" for k, v in LANGUAGES.items()]
+LANGUAGE_NAMES = list(LANGUAGES.values())
+LANGUAGE_CHOICES = [f"{key}: {value.title()}\n" for key, value in LANGUAGES.items()]
+LANGUAGES_REVERSED = {value: key for key, value in LANGUAGES.items()}
 
 # Uncomment these lines to install all the translation language models
 # import argostranslate.package
@@ -31,8 +33,9 @@ class LangCodesCommand:
     async def callback(self, ctx: crescent.Context) -> None:
         # TODO: Make this a paginated embed
         await ctx.respond(
-            "Here is a list of every language code you can use with translate commands,"
-            "as well as the languages they correspond to:\n\n"
+            "Here is a list of every language you can use with translate commands, "
+            "as well as the language codes they correspond to. You can use either the full "
+            "language name or the two-letter code.\n\n"
             f"{''.join(LANGUAGE_CHOICES)}",
             ephemeral=True,
         )
@@ -50,29 +53,33 @@ class TranslateCommand:
     phrase = crescent.option(str, "The phrase to translate")
 
     async def callback(self, ctx: crescent.Context) -> None:
-        match (self.source, self.destination):
-            case ("detect", dest) if dest in LANGUAGE_CODES:
-                # TODO: Add language detection; this library doesn't seem to have it
-                await ctx.respond(
-                    "Sorry, language detection isn't a thing yet; try again later!"
-                )
-            case (src, dest) if src in LANGUAGE_CODES and dest in LANGUAGE_CODES:
-                translation = argostranslate.translate.translate(self.phrase, src, dest)
-                await ctx.respond(
-                    f"💬 **{self.phrase}** translated from {LANGUAGES[src].title()} to {LANGUAGES[dest].title()}:"
-                    f"\n\n{translation}"
-                )
-            case (src, _) if src not in LANGUAGE_CODES:
-                await ctx.respond(
-                    f"The source ({src}) language is either invalid or unsupported!"
-                    "\n\nUse `/langcodes` to see what languages you can use."
-                )
-            case (_, dest) if dest not in LANGUAGE_CODES:
-                await ctx.respond(
-                    f"The destination ({dest}) language is either invalid or unsupported!"
-                    "\n\nUse `/langcodes` to see what languages you can use."
-                )
-                # "You can also use \"detect\" as the source language to autodetect the language.")
+        if self.source == "detect":
+            # TODO: Add language detection; this library doesn't seem to have it
+            await ctx.respond(
+                "Sorry, language detection isn't a thing yet; try again later!"
+            )
+        else:
+            match (self.source.lower(), self.destination.lower()):
+                case (src, dest) if src in LANGUAGE_CODES + LANGUAGE_NAMES and dest in LANGUAGE_CODES + LANGUAGE_NAMES:
+                    if len(src) != 2:
+                        src = LANGUAGES_REVERSED[src.lower()]
+                    if len(dest) != 2:
+                        dest = LANGUAGES_REVERSED[dest.lower()] 
+                    translation = argostranslate.translate.translate(self.phrase, src, dest)
+                    await ctx.respond(
+                        f"💬 **{self.phrase}** translated from {LANGUAGES[src].title()} to {LANGUAGES[dest].title()}:"
+                        f"\n\n{translation}"
+                    )
+                case (src, _) if src not in LANGUAGE_CODES + LANGUAGE_NAMES:
+                    await ctx.respond(
+                        f"The source ({src}) language is either invalid or unsupported!"
+                        "\n\nUse `/langcodes` to see what languages you can use."
+                    )
+                case (_, dest) if dest not in LANGUAGE_CODES + LANGUAGE_NAMES:
+                    await ctx.respond(
+                        f"The destination ({dest}) language is either invalid or unsupported!"
+                        "\n\nUse `/langcodes` to see what languages you can use."
+                    )
 
 
 # TODO: Bad translate command
