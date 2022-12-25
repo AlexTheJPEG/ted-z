@@ -45,7 +45,7 @@ class SlapCommand:
             slap_message = slap_message.replace(" their", " my")
             slap_message = slap_message.replace(" them", " myself")
         else:
-            slapee = self.user.username
+            slapee = self.user.mention
             slap_message = response.format(slapee)
 
         await ctx.respond(slap_message)
@@ -68,7 +68,7 @@ class GroundCommand:
         )
 
     async def callback(self, ctx: crescent.Context) -> None:
-        ground_message = self.create_ground_string(self.user.username, self.reason)
+        ground_message = self.create_ground_string(self.user.mention, self.reason)
         await ctx.respond(ground_message)
 
 
