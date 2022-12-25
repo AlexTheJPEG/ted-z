@@ -86,4 +86,4 @@ class TheGameCommand:
 class JokeCommand:
     async def callback(self, ctx: crescent.Context) -> None:
         response = requests.get("https://icanhazdadjoke.com/", headers=HEADERS)
-        await ctx.respond(response.text)
+        await ctx.respond(response.content.decode("utf-8"))
