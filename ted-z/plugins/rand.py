@@ -1,12 +1,10 @@
-import os
 import random
+
+from ..utils.opening import open_file
 
 import crescent
 
-real_path = os.path.realpath(__file__)
-dir_path = os.path.dirname(real_path)
-with open(f"{dir_path}/files/eb_responses.txt", "r") as file:
-    EB_RESPONSES = [line.strip() for line in file.readlines()]
+EB_RESPONSES = open_file("eb_responses.txt")
 
 plugin = crescent.Plugin()
 

@@ -1,19 +1,19 @@
 from abc import ABC
 from typing import Any
 
+from .utils.opening import load_bot_settings
+
 import aiohttp
 import crescent
 import hikari
-import tomli
 
-with open("bot_settings.toml", "rb") as file:
-    config = tomli.load(file)
+CONFIG = load_bot_settings()
 
 
 class Bot(crescent.Bot, ABC):
     def __init__(self) -> None:
         super().__init__(
-            token=config["bot"]["token"], intents=hikari.Intents.ALL_UNPRIVILEGED
+            token=CONFIG["bot"]["token"], intents=hikari.Intents.ALL_UNPRIVILEGED
         )
 
         self.plugins.load_folder("ted-z.plugins")

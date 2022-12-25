@@ -1,13 +1,9 @@
-import json
-import os
+from ..utils.opening import load_json
 
 import argostranslate.translate
 import crescent
 
-real_path = os.path.realpath(__file__)
-dir_path = os.path.dirname(real_path)
-with open(f"{dir_path}/files/langcodes.json", "r") as file:
-    LANGUAGES = json.load(file)
+LANGUAGES = load_json("langcodes.json")
 
 LANGUAGE_CODES = list(LANGUAGES.keys())
 LANGUAGE_NAMES = list(LANGUAGES.values())
@@ -60,12 +56,17 @@ class TranslateCommand:
             )
         else:
             match (self.source.lower(), self.destination.lower()):
-                case (src, dest) if src in LANGUAGE_CODES + LANGUAGE_NAMES and dest in LANGUAGE_CODES + LANGUAGE_NAMES:
+                case (
+                    src,
+                    dest,
+                ) if src in LANGUAGE_CODES + LANGUAGE_NAMES and dest in LANGUAGE_CODES + LANGUAGE_NAMES:
                     if len(src) != 2:
                         src = LANGUAGES_REVERSED[src.lower()]
                     if len(dest) != 2:
-                        dest = LANGUAGES_REVERSED[dest.lower()] 
-                    translation = argostranslate.translate.translate(self.phrase, src, dest)
+                        dest = LANGUAGES_REVERSED[dest.lower()]
+                    translation = argostranslate.translate.translate(
+                        self.phrase, src, dest
+                    )
                     await ctx.respond(
                         f"💬 **{self.phrase}** translated from {LANGUAGES[src].title()} to {LANGUAGES[dest].title()}:"
                         f"\n\n{translation}"

@@ -1,20 +1,15 @@
-import os
 import random
+
+from ..utils.opening import open_file, load_bot_settings
 
 import crescent
 import hikari
 import requests
-import tomli
 
-real_path = os.path.realpath(__file__)
-dir_path = os.path.dirname(real_path)
-with open(f"{dir_path}/files/slaps.txt", "r") as file:
-    SLAPS = [line.strip() for line in file.readlines()]
+SLAPS = open_file("slaps.txt")
 
-# Is there a better way to do this
-with open("bot_settings.toml", "rb") as file:
-    config = tomli.load(file)
-    BOT_USERNAME = config["bot"]["username"]
+config = load_bot_settings()
+BOT_USERNAME = config["bot"]["username"]
 
 plugin = crescent.Plugin()
 
