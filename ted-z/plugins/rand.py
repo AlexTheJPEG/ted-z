@@ -23,7 +23,7 @@ class EightBallCommand:
                 f':speech_balloon: "{self.question}"\n\n:8ball: {response}'
             )
         else:
-            await ctx.respond("Your question must end in '?'.")
+            await ctx.respond("Your question must end in '?'.", ephemeral=True)
 
 
 @plugin.include
