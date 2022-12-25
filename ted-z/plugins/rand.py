@@ -70,8 +70,8 @@ class LotteryCommand:
                 five_numbers_formatted = ", ".join(list(map(str, five_numbers)))
                 powerball_number = random.randint(1, 26)
                 await ctx.respond(
-                    ":moneybag: Here are your Powerball numbers:"
-                    f"\n\n{five_numbers_formatted} **({powerball_number})**",
+                    ":moneybag: Here are your Powerball numbers:\n\n"
+                    f"{five_numbers_formatted} **({powerball_number})**",
                     ephemeral=True,
                 )
             case "megamillions":
@@ -81,8 +81,8 @@ class LotteryCommand:
                 five_numbers_formatted = ", ".join(list(map(str, five_numbers)))
                 megaball_number = random.randint(1, 25)
                 await ctx.respond(
-                    ":moneybag: Here are your Mega Millions numbers:"
-                    f"\n\n{five_numbers_formatted} **({megaball_number})**",
+                    ":moneybag: Here are your Mega Millions numbers:\n\n"
+                    f"{five_numbers_formatted} **({megaball_number})**",
                     ephemeral=True,
                 )
             case "euromillions":
@@ -95,7 +95,7 @@ class LotteryCommand:
                     list(map(str, lucky_star_numbers))
                 )
                 await ctx.respond(
-                    ":moneybag: Here are your EuroMillions numbers:"
-                    f"\n\n{five_numbers_formatted} **({lucky_star_numbers_formatted})**",
+                    ":moneybag: Here are your EuroMillions numbers:\n\n"
+                    f"{five_numbers_formatted} **({lucky_star_numbers_formatted})**",
                     ephemeral=True,
                 )
