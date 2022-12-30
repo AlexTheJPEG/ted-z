@@ -6,19 +6,20 @@ from .utils.opening import load_bot_settings
 import aiohttp
 import crescent
 import hikari
+import miru
 
 CONFIG = load_bot_settings()
 
 
 class Bot(crescent.Bot, ABC):
     def __init__(self) -> None:
-        super().__init__(
-            token=CONFIG["bot"]["token"], intents=hikari.Intents.ALL_UNPRIVILEGED
-        )
+        super().__init__(token=CONFIG["bot"]["token"], intents=hikari.Intents.ALL_UNPRIVILEGED)
 
         self.plugins.load_folder("ted-z.plugins")
 
         self._session: aiohttp.ClientSession | None = None
+
+        miru.install(self)
 
     def session(self) -> aiohttp.ClientSession:
         if not self._session:
