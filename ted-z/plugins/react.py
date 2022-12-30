@@ -2,6 +2,19 @@ import crescent
 
 plugin = crescent.Plugin()
 
+NUMBER_EMOTES = [
+    "1️⃣",
+    "2️⃣",
+    "3️⃣",
+    "4️⃣",
+    "5️⃣",
+    "6️⃣",
+    "7️⃣",
+    "8️⃣",
+    "9️⃣",
+    "🔟",
+]
+
 
 @plugin.include
 @crescent.command(name="yesno", description="Create a yes/no poll")
@@ -23,20 +36,8 @@ class ScaleCommand:
     question = crescent.option(str, "The question for the poll")
 
     async def callback(self, ctx: crescent.Context) -> None:
-        number_emotes = [
-            "1️⃣",
-            "2️⃣",
-            "3️⃣",
-            "4️⃣",
-            "5️⃣",
-            "6️⃣",
-            "7️⃣",
-            "8️⃣",
-            "9️⃣",
-            "🔟",
-        ]
         msg = await ctx.respond(
             f"{self.question}\n\n(React on a scale from 1 to 10)", ensure_message=True
         )
-        for number in number_emotes:
+        for number in NUMBER_EMOTES:
             await msg.add_reaction(number)
