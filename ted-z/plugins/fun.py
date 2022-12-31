@@ -1,10 +1,10 @@
 import random
 
-from ..utils.opening import open_file, load_bot_settings
-
 import crescent
 import hikari
 import requests
+
+from ..utils.opening import load_bot_settings, open_file
 
 SLAPS = open_file("slaps.txt")
 
@@ -12,11 +12,6 @@ config = load_bot_settings()
 BOT_USERNAME = config["bot"]["username"]
 
 plugin = crescent.Plugin()
-
-HEADERS = {
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; rv:91.0) Gecko/20100101 Firefox/91.0",
-    "Accept": "text/plain",
-}
 
 
 @plugin.include
@@ -27,18 +22,21 @@ class SlapCommand:
     async def callback(self, ctx: crescent.Context) -> None:
         response = random.choice(SLAPS)
 
+        # If the user chooses to slap themself
         if ctx.user.username == self.user.username:
             slapee = "yourself"
             slap_message = response.format(slapee)
             slap_message = slap_message.replace(" they", " you")
             slap_message = slap_message.replace(" their", " your")
             slap_message = slap_message.replace(" them", " yourself")
+        # If the user chooses to slap Ted
         elif f"{self.user.username}#{self.user.discriminator}" == BOT_USERNAME:
             slapee = "me"
             slap_message = response.format(slapee)
             slap_message = slap_message.replace(" they", " I")
             slap_message = slap_message.replace(" their", " my")
-            slap_message = slap_message.replace(" them", " myself")
+            slap_message = slap_message.replace(" them", " me")
+        # If the user chooses to slap anyone else
         else:
             slapee = self.user.mention
             slap_message = response.format(slapee)
@@ -55,7 +53,7 @@ class GroundCommand:
     def create_ground_string(self, groundee, reason):
         time = random.randrange(10**50, 10**51)
         oh = "OH" * random.randint(15, 30)
-        grounded = ("GROUNDED " * random.randint(3, 9)).strip()
+        grounded = ("GROUNDED " * random.randint(3, 9)).rstrip()
         time_unit = random.choice(["YEARS", "CENTURIES", "EONS", "ETERNITIES"])
         return (
             f"{oh} {groundee.upper()} HOW DARE YOU {reason.upper()}!!! "
@@ -78,5 +76,8 @@ class TheGameCommand:
 @crescent.command(name="joke", description="Tell a random joke")
 class JokeCommand:
     async def callback(self, ctx: crescent.Context) -> None:
-        response = requests.get("https://icanhazdadjoke.com/", headers=HEADERS)
+        headers = {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; rv:91.0) Gecko/20100101 Firefox/91.0"
+        }
+        response = requests.get("https://icanhazdadjoke.com/", headers=headers)
         await ctx.respond(response.content.decode("utf-8"))
