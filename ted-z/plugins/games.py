@@ -37,6 +37,7 @@ class RPSView(miru.View):
 
     @miru.button(emoji="\N{BLACK SQUARE FOR STOP}", style=hikari.ButtonStyle.DANGER, row=2)
     async def stop_button(self, button: miru.Button, ctx: miru.ViewContext) -> None:
+        await ctx.respond("Cancelled.", flags=hikari.MessageFlag.EPHEMERAL)
         self.stop()
 
 
@@ -44,41 +45,36 @@ class RPSView(miru.View):
 @crescent.command(name="rps", description="Play rock-paper-scissors")
 class RPSCommand:
     async def callback(self, ctx: crescent.Context) -> None:
-        while True:
-            view = RPSView(timeout=60)
-            message = await ctx.respond("Pick a move!", components=view, ensure_message=True)
-            await view.start(message)
-            await view.wait()
-            if hasattr(view, "move"):
-                game_string = f"{ctx.user.mention}\nRock, paper, scissors, shoot!"
-                game = await ctx.respond(game_string, ensure_message=True, user_mentions=True)
-                await asyncio.sleep(2)
+        view = RPSView(timeout=60)
+        message = await ctx.respond(
+            "Pick a move!", components=view, ephemeral=True, ensure_message=True
+        )
+        await view.start(message)
+        await view.wait()
+        if hasattr(view, "move"):
+            game_string = f"{ctx.user.mention}\nRock, paper, scissors, shoot!"
+            game = await ctx.respond(game_string, ensure_message=True, user_mentions=True)
+            await asyncio.sleep(2)
 
-                player_move = view.move
-                bot_move = random.choice(list(RPS_EMOTES.keys()))
+            player_move = view.move
+            bot_move = random.choice(list(RPS_EMOTES.keys()))
 
-                game_string += f"\n\n{RPS_EMOTES[player_move]} You chose {player_move}."
-                await game.edit(game_string)
-                await asyncio.sleep(1)
+            game_string += f"\n\n{RPS_EMOTES[player_move]} You chose {player_move}."
+            await game.edit(game_string)
+            await asyncio.sleep(1)
 
-                game_string += f"\n{RPS_EMOTES[bot_move]} I chose {bot_move}."
-                await game.edit(game_string)
-                await asyncio.sleep(1)
+            game_string += f"\n{RPS_EMOTES[bot_move]} I chose {bot_move}."
+            await game.edit(game_string)
+            await asyncio.sleep(1)
 
-                self.bot_wins = RPS_WINLOSS[bot_move][0]
-                self.bot_loses = RPS_WINLOSS[bot_move][1]
+            self.bot_wins = RPS_WINLOSS[bot_move][0]
+            self.bot_loses = RPS_WINLOSS[bot_move][1]
 
-                match player_move:
-                    case self.bot_wins:
-                        game_string += f"\n\n**I win!**"
-                    case self.bot_loses:
-                        game_string += f"\n\n**You win.**"
-                    case _:
-                        game_string += f"\n\n**It's a draw.**"
-                await game.edit(game_string)
-                if not game_string.endswith("draw.**"):
-                    break
-                await asyncio.sleep(1)
-            else:
-                await ctx.respond("Cancelled.")
-                break
+            match player_move:
+                case self.bot_wins:
+                    game_string += f"\n\n**I win!**"
+                case self.bot_loses:
+                    game_string += f"\n\n**You win.**"
+                case _:
+                    game_string += f"\n\n**It's a draw.**"
+            await game.edit(game_string)
