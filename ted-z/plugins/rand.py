@@ -1,8 +1,8 @@
 import random
 
-from ..utils.opening import open_file
-
 import crescent
+
+from ..utils.opening import open_file
 
 EB_RESPONSES = open_file("eb_responses.txt")
 
@@ -12,14 +12,11 @@ plugin = crescent.Plugin()
 @plugin.include
 @crescent.command(name="8ball", description="Ask the magic 8-Ted a question")
 class EightBallCommand:
-    question = crescent.option(str, "The question to ask (must end in '?')")
+    question = crescent.option(str, "The question to ask")
 
     async def callback(self, ctx: crescent.Context) -> None:
         response = random.choice(EB_RESPONSES)
-        if self.question[-1] == "?":
-            await ctx.respond(f':speech_balloon: "{self.question}"\n\n:8ball: {response}')
-        else:
-            await ctx.respond("Your question must end in '?'.", ephemeral=True)
+        await ctx.respond(f':speech_balloon: "{self.question}"\n\n:8ball: {response}')
 
 
 @plugin.include
