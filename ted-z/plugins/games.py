@@ -1,5 +1,6 @@
 import random
 
+import aiohttp
 import asyncio
 import crescent
 import hikari
@@ -33,6 +34,36 @@ class RPSView(miru.View):
     @miru.button(label="Scissors", emoji="\N{BLACK SCISSORS}", style=hikari.ButtonStyle.PRIMARY)
     async def scissors_button(self, button: miru.Button, ctx: miru.Context) -> None:
         self.move = "scissors"
+        self.stop()
+
+    @miru.button(emoji="\N{BLACK SQUARE FOR STOP}", style=hikari.ButtonStyle.DANGER, row=2)
+    async def stop_button(self, button: miru.Button, ctx: miru.ViewContext) -> None:
+        await ctx.respond("Cancelled.", flags=hikari.MessageFlag.EPHEMERAL)
+        self.stop()
+
+
+class TriviaView(miru.View):
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+    @miru.button(label="A", style=hikari.ButtonStyle.PRIMARY)
+    async def a_button(self, button: miru.Button, ctx: miru.Context) -> None:
+        self.answer = "a"
+        self.stop()
+
+    @miru.button(label="B", style=hikari.ButtonStyle.PRIMARY)
+    async def b_button(self, button: miru.Button, ctx: miru.Context) -> None:
+        self.answer = "b"
+        self.stop()
+
+    @miru.button(label="C", style=hikari.ButtonStyle.PRIMARY)
+    async def c_button(self, button: miru.Button, ctx: miru.Context) -> None:
+        self.answer = "c"
+        self.stop()
+
+    @miru.button(label="D", style=hikari.ButtonStyle.PRIMARY)
+    async def d_button(self, button: miru.Button, ctx: miru.Context) -> None:
+        self.answer = "d"
         self.stop()
 
     @miru.button(emoji="\N{BLACK SQUARE FOR STOP}", style=hikari.ButtonStyle.DANGER, row=2)
@@ -78,3 +109,56 @@ class RPSCommand:
                 case _:
                     game_string += f"\n\n**It's a draw.**"
             await game.edit(game_string)
+
+
+@plugin.include
+@crescent.command(name="trivia", description="Try to answer a random trivia question")
+class TriviaCommand:
+    async def callback(self, ctx: crescent.Context) -> None:
+        headers = {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.85 Safari/537.36"
+        }
+
+        async with aiohttp.ClientSession() as session:
+            async with session.get(
+                "https://the-trivia-api.com/api/questions?limit=1&region=US", headers=headers
+            ) as response:
+                question_json = (await response.json())[0]
+
+        category = question_json["category"]
+        question = question_json["question"]
+
+        correct_answer = question_json["correctAnswer"]
+        answers = question_json["incorrectAnswers"] + [correct_answer]
+        random.shuffle(answers)
+
+        answers_with_letters = {chr(97 + i): answers[i] for i in range(len(answers))}
+        correct_answer_letter = chr(97 + answers.index(correct_answer))
+
+        answers_list = [f":regional_indicator_{k}: {v}" for k, v in answers_with_letters.items()]
+        answers_string = "\n".join(answers_list)
+        trivia_string = [f"**Category: {category}**", question, answers_string]
+
+        view = TriviaView(timeout=60)
+        message = await ctx.respond(
+            "\n\n".join(trivia_string), components=view, ensure_message=True
+        )
+        await view.start(message)
+        await view.wait()
+
+        if hasattr(view, "answer"):
+            answers_list[answers.index(correct_answer)] += " :white_check_mark:"
+
+            if answers_with_letters[view.answer] == correct_answer:
+                await ctx.respond(f"{ctx.user.mention} That is correct!", user_mentions=True)
+            else:
+                await ctx.respond(
+                    f"{ctx.user.mention} That is incorrect. "
+                    f"The answer was :regional_indicator_{correct_answer_letter}: {correct_answer}.",
+                    user_mentions=True,
+                )
+                answers_list[answers.index(answers_with_letters[view.answer])] += " :x:"
+
+            answers_string = "\n".join(answers_list)
+            trivia_string = [f"**Category: {category}**", question, answers_string]
+            await message.edit("\n\n".join(trivia_string))
