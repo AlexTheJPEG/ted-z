@@ -44,3 +44,7 @@ async def scale(ctx: lightbulb.Context) -> None:
 
 def load(bot: lightbulb.BotApp) -> None:
     bot.add_plugin(plugin)
+
+
+def unload(bot: lightbulb.BotApp) -> None:
+    bot.remove_plugin(plugin)
