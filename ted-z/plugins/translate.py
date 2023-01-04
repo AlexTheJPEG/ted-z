@@ -59,7 +59,7 @@ class TranslateCommand:
                         dest = LANGUAGE_DICT_REV[dest.lower()]
                     translation = argostranslate.translate.translate(self.phrase, src, dest)
                     await ctx.respond(
-                        f":speech_bubble: **{self.phrase}**"
+                        f":speech_balloon: **{self.phrase}**"
                         f" translated from {LANGUAGE_DICT[src].title()} to {LANGUAGE_DICT[dest].title()}:"
                         f"\n\n{translation}"
                     )
