@@ -420,32 +420,6 @@ files = [
 ]
 
 [[package]]
-name = "futures"
-version = "3.0.5"
-description = "Backport of the concurrent.futures package from Python 3.2"
-category = "main"
-optional = false
-python-versions = "*"
-files = [
-    {file = "futures-3.0.5-py2-none-any.whl", hash = "sha256:f7f16b6bf9653a918a03f1f2c2d62aac0cd64b1bc088e93ea279517f6b61120b"},
-    {file = "futures-3.0.5.tar.gz", hash = "sha256:0542525145d5afc984c88f914a0c85c77527f65946617edb5274f72406f981df"},
-]
-
-[[package]]
-name = "goslate"
-version = "1.5.4"
-description = "Goslate: Free Google Translate API"
-category = "main"
-optional = false
-python-versions = "*"
-files = [
-    {file = "goslate-1.5.4.tar.gz", hash = "sha256:c6ad6b121d19eec08c29cea7385c055a7bc53247d1b8cd935f68228a4e2063d5"},
-]
-
-[package.dependencies]
-futures = "*"
-
-[[package]]
 name = "hikari"
 version = "2.0.0.dev113"
 description = "A sane Discord API for Python 3 built on asyncio and good intentions"
@@ -1245,4 +1219,4 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.10,<3.11"
-content-hash = "3043cc698f5ea5fc9369096a5b901505f26e2fd2c41facdffc7d219bddd879a8"
+content-hash = "fcbc1d996a93c46d7d10b96c20099c953053241a9be6f65ac1feb93e37e5d921"
