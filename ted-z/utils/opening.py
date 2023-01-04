@@ -1,6 +1,6 @@
 import json
 
-import tomli
+import tomllib
 
 
 def open_file(filename):
@@ -15,4 +15,4 @@ def load_json(filename):
 
 def load_bot_settings():
     with open("bot_settings.toml", "rb") as settings:
-        return tomli.load(settings)
+        return tomllib.load(settings)

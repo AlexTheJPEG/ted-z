@@ -1,16 +1,15 @@
 [tool.poetry]
 name = "ted-z"
-version = "0.1.0"
+version = "1.0.0"
 description = "Just another Discord bot written in Python! (this is the last revision i swear)"
 authors = ["Alex The JPEG <alexthejpeg@gmail.com>"]
 
 [tool.poetry.dependencies]
-python = ">=3.10,<3.11"
-hikari-crescent = "^0.3.5"
-tomli = "^2.0.1"
+python = ">=3.11,<3.12"
+hikari-crescent = "^0.4.0"
+hikari-miru = "^2.0.1"
 requests = "^2.28.1"
 argostranslate = "^1.7.5"
-hikari-miru = "^2.0.1"
 
 [tool.poetry.dev-dependencies]
 
