@@ -13,6 +13,8 @@ plugin = lightbulb.Plugin("admin")
         "ping",
         "rand",
         "react",
+        "fun",
+        "admin",
     ),
     default="all",
 )
