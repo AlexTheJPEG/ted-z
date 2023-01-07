@@ -1,8 +1,8 @@
 import random
 
-import crescent
+import aiohttp
 import hikari
-import requests
+import lightbulb
 
 from ..utils.opening import load_bot_settings, open_file
 
@@ -11,73 +11,85 @@ SLAPS = open_file("slaps.txt")
 config = load_bot_settings()
 BOT_USERNAME = config["bot"]["username"]
 
-plugin = crescent.Plugin()
+plugin = lightbulb.Plugin("fun")
 
 
-@plugin.include
-@crescent.command(name="slap", description="Slap someone")
-class SlapCommand:
-    user = crescent.option(hikari.User, "The person you want to slap")
+@plugin.command
+@lightbulb.option(name="user", description="The person you want to slap", type=hikari.User)
+@lightbulb.command(name="slap", description="Slap someone")
+@lightbulb.implements(lightbulb.SlashCommand)
+async def slap(ctx: lightbulb.Context) -> None:
+    response = random.choice(SLAPS)
 
-    async def callback(self, ctx: crescent.Context) -> None:
-        response = random.choice(SLAPS)
+    # If the user chooses to slap themself
+    if ctx.options.user.mention == ctx.author.mention:
+        slapee = "yourself"
+        slap_message = response.format(slapee)
+        slap_message = slap_message.replace(" they", " you")
+        slap_message = slap_message.replace(" their", " your")
+        slap_message = slap_message.replace(" them", " yourself")
+    # If the user chooses to slap Ted
+    elif ctx.options.user.mention == ctx.bot.get_me().mention:  # type: ignore
+        slapee = "me"
+        slap_message = response.format(slapee)
+        slap_message = slap_message.replace(" they", " I")
+        slap_message = slap_message.replace(" their", " my")
+        slap_message = slap_message.replace(" them", " me")
+    # If the user chooses to slap anyone else
+    else:
+        slapee = ctx.options.user.mention
+        slap_message = response.format(slapee)
 
-        # If the user chooses to slap themself
-        if ctx.user.username == self.user.username:
-            slapee = "yourself"
-            slap_message = response.format(slapee)
-            slap_message = slap_message.replace(" they", " you")
-            slap_message = slap_message.replace(" their", " your")
-            slap_message = slap_message.replace(" them", " yourself")
-        # If the user chooses to slap Ted
-        elif f"{self.user.username}#{self.user.discriminator}" == BOT_USERNAME:
-            slapee = "me"
-            slap_message = response.format(slapee)
-            slap_message = slap_message.replace(" they", " I")
-            slap_message = slap_message.replace(" their", " my")
-            slap_message = slap_message.replace(" them", " me")
-        # If the user chooses to slap anyone else
-        else:
-            slapee = self.user.mention
-            slap_message = response.format(slapee)
-
-        await ctx.respond(slap_message)
-
-
-@plugin.include
-@crescent.command(name="ground", description="Ground someone")
-class GroundCommand:
-    user = crescent.option(hikari.User, "The person you want to ground")
-    reason = crescent.option(str, "The reason you're grounding them")
-
-    def create_ground_string(self, groundee, reason):
-        time = random.randrange(10**50, 10**51)
-        oh = "OH" * random.randint(15, 30)
-        grounded = ("GROUNDED " * random.randint(3, 9)).rstrip()
-        time_unit = random.choice(["YEARS", "CENTURIES", "EONS", "ETERNITIES"])
-        return (
-            f"{oh} {groundee.upper()} HOW DARE YOU {reason.upper()}!!! "
-            f"THAT'S IT. YOU ARE {grounded} FOR {time} {time_unit}!!!!!!!!!!"
-        )
-
-    async def callback(self, ctx: crescent.Context) -> None:
-        ground_message = self.create_ground_string(self.user.mention, self.reason)
-        await ctx.respond(ground_message)
+    await ctx.respond(slap_message, user_mentions=True)
 
 
-@plugin.include
-@crescent.command(name="thegame", description="You lost The Game. Now make everyone else lose it")
-class TheGameCommand:
-    async def callback(self, ctx: crescent.Context) -> None:
-        await ctx.respond("I lost The Game.")
+def create_ground_string(groundee, reason):
+    time = random.randrange(10**50, 10**51)
+    oh = "OH" * random.randint(15, 30)
+    grounded = ("GROUNDED " * random.randint(3, 9)).rstrip()
+    time_unit = random.choice(["YEARS", "CENTURIES", "EONS", "ETERNITIES"])
+    return (
+        f"{oh} {groundee.upper()} HOW DARE YOU {reason.upper()}!!! "
+        f"THAT'S IT. YOU ARE {grounded} FOR {time} {time_unit}!!!!!!!!!!"
+    )
 
 
-@plugin.include
-@crescent.command(name="joke", description="Tell a random joke")
-class JokeCommand:
-    async def callback(self, ctx: crescent.Context) -> None:
-        headers = {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; rv:91.0) Gecko/20100101 Firefox/91.0"
-        }
-        response = requests.get("https://icanhazdadjoke.com/", headers=headers)
-        await ctx.respond(response.content.decode("utf-8"))
+@plugin.command
+@lightbulb.option(name="reason", description="The reason you're grounding them", type=str)
+@lightbulb.option(name="user", description="The person you want to ground", type=hikari.User)
+@lightbulb.command(name="ground", description="Ground someone")
+@lightbulb.implements(lightbulb.SlashCommand)
+async def ground(ctx: lightbulb.Context) -> None:
+    ground_message = create_ground_string(ctx.options.user.mention, ctx.options.reason)
+    await ctx.respond(ground_message)
+
+
+@plugin.command
+@lightbulb.command(name="thegame", description="You lost The Game. Now make everyone else lose it")
+@lightbulb.implements(lightbulb.SlashCommand)
+async def thegame(ctx: lightbulb.Context) -> None:
+    await ctx.respond("I lost The Game.")
+
+
+@plugin.command
+@lightbulb.command(name="joke", description="Tell a random joke")
+@lightbulb.implements(lightbulb.SlashCommand)
+async def joke(ctx: lightbulb.Context) -> None:
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; rv:91.0) Gecko/20100101 Firefox/91.0",
+        "Accept": "text/plain",
+    }
+
+    async with aiohttp.ClientSession() as session:
+        async with session.get("https://icanhazdadjoke.com", headers=headers) as response:
+            joke_text = await response.text(encoding="utf-8")
+
+    await ctx.respond(joke_text)
+
+
+def load(bot: lightbulb.BotApp) -> None:
+    bot.add_plugin(plugin)
+
+
+def unload(bot: lightbulb.BotApp) -> None:
+    bot.remove_plugin(plugin)
