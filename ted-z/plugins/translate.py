@@ -1,21 +1,16 @@
 from ..utils.opening import load_json
 
-import argostranslate.translate
+from libretranslatepy import LibreTranslateAPI
 import lightbulb
 
-LANGUAGE_DICT = load_json("langcodes.json")
-LANGUAGE_DICT_REV = {value: key for key, value in LANGUAGE_DICT.items()}
+LT_API = LibreTranslateAPI("https://lt.vern.cc/")
+LANGUAGE_LIST = LT_API.languages()
+LANGUAGE_DICT = {language["code"]: language["name"] for language in LANGUAGE_LIST}
+LANGUAGE_DICT_REV = {language["name"]: language["code"] for language in LANGUAGE_LIST}
 
 LANGUAGE_CODES = list(LANGUAGE_DICT.keys())
-LANGUAGES = LANGUAGE_CODES + list(LANGUAGE_DICT.values())
-LANGUAGE_CHOICES = [f"{key}: {value.title()}\n" for key, value in LANGUAGE_DICT.items()]
-
-# Uncomment these lines to install all the translation language models
-# import argostranslate.package
-# argostranslate.package.update_package_index()
-# available_packages = argostranslate.package.get_available_packages()
-# for package in available_packages:
-#     argostranslate.package.install_from_path(package.download())
+LANGUAGES = LANGUAGE_CODES + list(LANGUAGE_DICT_REV.keys())
+LANGUAGE_CHOICES = [f"{k}: {v}\n" for k, v in LANGUAGE_DICT]
 
 plugin = lightbulb.Plugin("translate")
 
@@ -54,7 +49,7 @@ async def translate(ctx: lightbulb.Context) -> None:
                     src = LANGUAGE_DICT_REV[src.lower()]
                 if len(dest) != 2:
                     dest = LANGUAGE_DICT_REV[dest.lower()]
-                translation = argostranslate.translate.translate(ctx.options.phrase, src, dest)
+                translation = LT_API.translate(ctx.options.phrase, src, dest)
                 await ctx.respond(
                     f":speech_balloon: **{ctx.options.phrase}**"
                     f" translated from {LANGUAGE_DICT[src].title()} to {LANGUAGE_DICT[dest].title()}:"
