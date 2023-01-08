@@ -1,7 +1,5 @@
-from ..utils.opening import load_json
-
-from libretranslatepy import LibreTranslateAPI
 import lightbulb
+from libretranslatepy import LibreTranslateAPI
 
 LT_API = LibreTranslateAPI("https://lt.vern.cc/")
 LANGUAGE_LIST = LT_API.languages()
