@@ -14,6 +14,7 @@ plugin = lightbulb.Plugin("admin")
         "rand",
         "react",
         "fun",
+        "translate",
         "admin",
     ),
     default="all",
