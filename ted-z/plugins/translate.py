@@ -39,32 +39,32 @@ async def langcodes(ctx: lightbulb.Context) -> None:
 @lightbulb.command(name="translate", description="Translate a phrase from one language to another")
 @lightbulb.implements(lightbulb.SlashCommand)
 async def translate(ctx: lightbulb.Context) -> None:
+    source = ctx.options.source.lower()
+    destination = ctx.options.destination.lower()
     if ctx.options.source == "detect":
-        # TODO: Add language detection; this library doesn't seem to have it
-        await ctx.respond("Sorry, language detection isn't a thing yet; try again later!")
-    else:
-        match (ctx.options.source.lower(), ctx.options.destination.lower()):
-            case (src, dest) if src in LANGUAGES and dest in LANGUAGES:
-                if len(src) != 2:
-                    src = LANGUAGE_DICT_REV[src.lower()]
-                if len(dest) != 2:
-                    dest = LANGUAGE_DICT_REV[dest.lower()]
-                translation = LT_API.translate(ctx.options.phrase, src, dest)
-                await ctx.respond(
-                    f":speech_balloon: **{ctx.options.phrase}**"
-                    f" translated from {LANGUAGE_DICT[src].title()} to {LANGUAGE_DICT[dest].title()}:"
-                    f"\n\n{translation}"
-                )
-            case (src, _) if src not in LANGUAGES:
-                await ctx.respond(
-                    f"The source ({src}) language is either invalid or unsupported!"
-                    "\n\nUse `/langcodes` to see what languages you can use."
-                )
-            case (_, dest) if dest not in LANGUAGES:
-                await ctx.respond(
-                    f"The destination ({dest}) language is either invalid or unsupported!"
-                    "\n\nUse `/langcodes` to see what languages you can use."
-                )
+        source = LT_API.detect(ctx.options.phrase)[0]["language"]
+    match (source, destination):
+        case (src, dest) if src in LANGUAGES and dest in LANGUAGES:
+            if len(src) != 2:
+                src = LANGUAGE_DICT_REV[src.lower()]
+            if len(dest) != 2:
+                dest = LANGUAGE_DICT_REV[dest.lower()]
+            translation = LT_API.translate(ctx.options.phrase, src, dest)
+            await ctx.respond(
+                f":speech_balloon: **{ctx.options.phrase}**"
+                f" translated from {LANGUAGE_DICT[src].title()} to {LANGUAGE_DICT[dest].title()}:"
+                f"\n\n{translation}"
+            )
+        case (src, _) if src not in LANGUAGES:
+            await ctx.respond(
+                f"The source ({src}) language is either invalid or unsupported!"
+                "\n\nUse `/langcodes` to see what languages you can use."
+            )
+        case (_, dest) if dest not in LANGUAGES:
+            await ctx.respond(
+                f"The destination ({dest}) language is either invalid or unsupported!"
+                "\n\nUse `/langcodes` to see what languages you can use."
+            )
 
 
 # TODO: Bad translate command
