@@ -19,4 +19,4 @@ As for dependencies, they are all handled by [Poetry](https://github.com/python-
 To run the bot, activate the virtual environment created by Poetry and run `python -m ted-z` in the project directory.
 
 ## Notes
-If your bot is online, and you change its code in one of the plugins, you may use `/reload [plugin]` in a valid text channel to reload the plugin (or use `/reload all` or simply `/reload` to reload all plugins) without having to restart the entire bot. Creating or deleting plugins still requires a full restart.
+If your bot is online, and you change its code in one of the plugins, you may use `/reload [plugin]` in a valid text channel to reload the plugin (or use `/reload all` or simply `/reload` to reload all plugins) without having to restart the entire bot. Creating or deleting plugins / commands still requires a full restart.
