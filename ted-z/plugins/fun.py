@@ -61,7 +61,7 @@ def create_ground_string(groundee, reason):
 @lightbulb.implements(lightbulb.SlashCommand)
 async def ground(ctx: lightbulb.Context) -> None:
     ground_message = create_ground_string(ctx.options.user.mention, ctx.options.reason)
-    await ctx.respond(ground_message)
+    await ctx.respond(ground_message, user_mentions=True)
 
 
 @plugin.command
