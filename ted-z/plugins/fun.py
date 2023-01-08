@@ -55,7 +55,11 @@ def create_ground_string(groundee, reason):
 
 
 @plugin.command
-@lightbulb.option(name="reason", description="The reason you're grounding them", type=str)
+@lightbulb.option(
+    name="reason",
+    description='The reason you\'re grounding them (Fill in the blank: "HOW DARE YOU _____!!!")',
+    type=str,
+)
 @lightbulb.option(name="user", description="The person you want to ground", type=hikari.User)
 @lightbulb.command(name="ground", description="Ground someone")
 @lightbulb.implements(lightbulb.SlashCommand)
