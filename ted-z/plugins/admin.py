@@ -16,6 +16,7 @@ plugin = lightbulb.Plugin("admin")
         "fun",
         "translate",
         "games",
+        "images",
         "admin",
     ),
     default="all",
