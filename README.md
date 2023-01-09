@@ -2,7 +2,7 @@
 ~~this is the last revision i swear~~
 
 Just another Discord bot written in Python that does anything a Discord bot usually does!
-Written using [Hikari](https://github.com/hikari-py/hikari) and [Crescent](https://github.com/magpie-dev/hikari-crescent).
+Written using [Hikari](https://github.com/hikari-py/hikari) and [Lightbulb](https://github.com/tandemdude/hikari-lightbulb).
 
 ## Setup
 To get started, clone this repo somewhere on your machine, then create a file in the project directory called `bot_settings.toml`. This will contain all the settings required for the bot.
