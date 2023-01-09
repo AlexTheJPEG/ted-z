@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "ted-z"
-version = "1.0.0"
+version = "2.0.0"
 description = "Just another Discord bot written in Python! (this is the last revision i swear)"
 authors = ["Alex The JPEG <alexthejpeg@gmail.com>"]
 
