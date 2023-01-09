@@ -122,7 +122,10 @@ async def rps(ctx: lightbulb.Context) -> None:
 @lightbulb.implements(lightbulb.SlashCommand)
 async def trivia(ctx: lightbulb.Context) -> None:
     headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.85 Safari/537.36"
+        "User-Agent": (
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)"
+            " Chrome/90.0.4430.85 Safari/537.36"
+        )
     }
 
     # Get a random question
@@ -161,8 +164,10 @@ async def trivia(ctx: lightbulb.Context) -> None:
             await ctx.respond(f"{ctx.user.mention} That is correct!", user_mentions=True)
         else:
             await ctx.respond(
-                f"{ctx.user.mention} That is incorrect. "
-                f"The answer was: :regional_indicator_{correct_answer_letter}: {correct_answer}.",
+                (
+                    f"{ctx.user.mention} That is incorrect. The answer was:"
+                    f" :regional_indicator_{correct_answer_letter}: {correct_answer}."
+                ),
                 user_mentions=True,
             )
             # Mark the user's answer with an X

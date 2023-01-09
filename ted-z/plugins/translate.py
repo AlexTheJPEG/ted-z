@@ -23,10 +23,9 @@ plugin = lightbulb.Plugin("translate")
 async def langcodes(ctx: lightbulb.Context) -> None:
     # TODO: Make this a paginated embed
     await ctx.respond(
-        "Here is a list of every language you can use with translate commands, "
-        "as well as the language codes they correspond to. You can use either the full "
-        "language name or the two-letter code.\n\n"
-        f"{''.join(LANGUAGE_CHOICES)}"
+        "Here is a list of every language you can use with translate commands, as well as the"
+        " language codes they correspond to. You can use either the full language name or the"
+        f" two-letter code.\n\n{''.join(LANGUAGE_CHOICES)}"
     )
 
 
