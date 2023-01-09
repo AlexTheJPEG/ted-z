@@ -5,6 +5,7 @@ import hikari
 import lightbulb
 
 from ..utils.opening import load_bot_settings, open_file
+from ..utils.web import HEADERS
 
 SLAPS = open_file("slaps.txt")
 
@@ -78,10 +79,8 @@ async def thegame(ctx: lightbulb.Context) -> None:
 @lightbulb.command(name="joke", description="Tell a random joke")
 @lightbulb.implements(lightbulb.SlashCommand)
 async def joke(ctx: lightbulb.Context) -> None:
-    headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; rv:91.0) Gecko/20100101 Firefox/91.0",
-        "Accept": "text/plain",
-    }
+    headers = HEADERS
+    headers["Accept"] = "text/plain"
 
     async with aiohttp.ClientSession() as session:
         async with session.get("https://icanhazdadjoke.com", headers=headers) as response:

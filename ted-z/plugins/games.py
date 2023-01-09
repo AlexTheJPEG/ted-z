@@ -1,11 +1,12 @@
+import asyncio
 import random
 
 import aiohttp
-import asyncio
-import lightbulb
 import hikari
+import lightbulb
 import miru
 
+from ..utils.web import HEADERS
 
 plugin = lightbulb.Plugin("games")
 
@@ -121,17 +122,10 @@ async def rps(ctx: lightbulb.Context) -> None:
 @lightbulb.command(name="trivia", description="Try to answer a random trivia question")
 @lightbulb.implements(lightbulb.SlashCommand)
 async def trivia(ctx: lightbulb.Context) -> None:
-    headers = {
-        "User-Agent": (
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)"
-            " Chrome/90.0.4430.85 Safari/537.36"
-        )
-    }
-
     # Get a random question
     async with aiohttp.ClientSession() as session:
         async with session.get(
-            "https://the-trivia-api.com/api/questions?limit=1&region=US", headers=headers
+            "https://the-trivia-api.com/api/questions?limit=1&region=US", headers=HEADERS
         ) as response:
             question_json = (await response.json())[0]
 
