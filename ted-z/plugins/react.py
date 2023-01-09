@@ -1,6 +1,4 @@
-import crescent
-
-plugin = crescent.Plugin()
+import lightbulb
 
 NUMBER_EMOTES = [
     "1️⃣",
@@ -15,29 +13,38 @@ NUMBER_EMOTES = [
     "🔟",
 ]
 
+plugin = lightbulb.Plugin("react")
 
-@plugin.include
-@crescent.command(name="yesno", description="Create a yes/no poll")
-class YesNoCommand:
-    question = crescent.option(str, "The question for the poll")
 
-    async def callback(self, ctx: crescent.Context) -> None:
-        msg = await ctx.respond(
-            f"{self.question}\n\n(React :thumbsup: for yes and :thumbsdown: for no)",
-            ensure_message=True,
+@plugin.command
+@lightbulb.option(name="question", description="The question for the poll", type=str)
+@lightbulb.command(name="yesno", description="Create a yes/no poll")
+@lightbulb.implements(lightbulb.SlashCommand)
+async def yesno(ctx: lightbulb.Context) -> None:
+    msg = await (
+        await ctx.respond(
+            f"{ctx.options.question}\n\n(React :thumbsup: for yes and :thumbsdown: for no)",
         )
-        await msg.add_reaction("👍")
-        await msg.add_reaction("👎")
+    ).message()
+    await msg.add_reaction("👍")
+    await msg.add_reaction("👎")
 
 
-@plugin.include
-@crescent.command(name="scale", description="Create a scale from 1-10 poll")
-class ScaleCommand:
-    question = crescent.option(str, "The question for the poll")
+@plugin.command
+@lightbulb.option(name="question", description="The question for the poll", type=str)
+@lightbulb.command(name="scale", description="Create a scale from 1-10 poll")
+@lightbulb.implements(lightbulb.SlashCommand)
+async def scale(ctx: lightbulb.Context) -> None:
+    msg = await (
+        await ctx.respond(f"{ctx.options.question}\n\n(React on a scale from 1 to 10)")
+    ).message()
+    for number in NUMBER_EMOTES:
+        await msg.add_reaction(number)
 
-    async def callback(self, ctx: crescent.Context) -> None:
-        msg = await ctx.respond(
-            f"{self.question}\n\n(React on a scale from 1 to 10)", ensure_message=True
-        )
-        for number in NUMBER_EMOTES:
-            await msg.add_reaction(number)
+
+def load(bot: lightbulb.BotApp) -> None:
+    bot.add_plugin(plugin)
+
+
+def unload(bot: lightbulb.BotApp) -> None:
+    bot.remove_plugin(plugin)

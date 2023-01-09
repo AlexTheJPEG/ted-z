@@ -1,10 +1,18 @@
-import crescent
+import lightbulb
 
-plugin = crescent.Plugin()
+plugin = lightbulb.Plugin("ping")
 
 
-@plugin.include
-@crescent.command(name="ping", description="Ping Ted")
-class PingCommand:
-    async def callback(self, ctx: crescent.Context) -> None:
-        await ctx.respond(f":ping_pong: Pong! ({round(ctx.app.heartbeat_latency * 1000)} ms)")  # type: ignore
+@plugin.command
+@lightbulb.command(name="ping", description="Ping Ted")
+@lightbulb.implements(lightbulb.SlashCommand)
+async def ping(ctx: lightbulb.Context) -> None:
+    await ctx.respond(f":ping_pong: Pong! ({round(ctx.app.heartbeat_latency * 1000)} ms)")
+
+
+def load(bot: lightbulb.BotApp) -> None:
+    bot.add_plugin(plugin)
+
+
+def unload(bot: lightbulb.BotApp) -> None:
+    bot.remove_plugin(plugin)
