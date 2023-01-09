@@ -11,7 +11,6 @@ The file should contain at least the following settings:
 ```
 [bot]
 token = "[bot token]"
-username = "[bot username]#[bot discriminator]"
 ```
 
 As for dependencies, they are all handled by [Poetry](https://github.com/python-poetry/poetry). Simply run `poetry install` in the project directory.

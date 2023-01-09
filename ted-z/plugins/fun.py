@@ -9,7 +9,6 @@ from ..utils.opening import load_bot_settings, open_file
 SLAPS = open_file("slaps.txt")
 
 config = load_bot_settings()
-BOT_USERNAME = config["bot"]["username"]
 
 plugin = lightbulb.Plugin("fun")
 
