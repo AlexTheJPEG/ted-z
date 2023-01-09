@@ -4,6 +4,7 @@ import tempfile
 
 import hikari
 import lightbulb
+import PIL
 from PIL import Image, ImageOps
 import requests
 
@@ -26,11 +27,15 @@ async def avatar(ctx: lightbulb.Context) -> None:
 @lightbulb.implements(lightbulb.SlashCommand)
 async def jpegify(ctx: lightbulb.Context) -> None:
     response = requests.get(ctx.options.image.url)
-    image = Image.open(BytesIO(response.content)).convert("RGB")
 
-    with tempfile.NamedTemporaryFile(suffix=".jpg") as file:
-        image.save(file, format="JPEG", optimize=True, quality=0)
-        await ctx.respond(attachment=file.name)
+    try:
+        image = Image.open(BytesIO(response.content)).convert("RGB")
+
+        with tempfile.NamedTemporaryFile(suffix=".jpg") as file:
+            image.save(file, format="JPEG", optimize=True, quality=0)
+            await ctx.respond(attachment=file.name)
+    except PIL.UnidentifiedImageError:
+        await ctx.respond("Looks like you didn't send an image! Come back with one and try again.")
 
 
 @plugin.command
@@ -40,26 +45,30 @@ async def jpegify(ctx: lightbulb.Context) -> None:
 async def invert(ctx: lightbulb.Context) -> None:
     response = requests.get(ctx.options.image.url)
     _, extension = os.path.splitext(ctx.options.image.url)
-    if extension == ".png":
-        image = Image.open(BytesIO(response.content)).convert("RGBA")
 
-        with tempfile.NamedTemporaryFile(suffix=extension) as file:
-            r, g, b, a = image.split()
+    try:
+        if extension == ".png":
+            image = Image.open(BytesIO(response.content)).convert("RGBA")
 
-            r = r.point(lambda i: 255 - i)
-            g = g.point(lambda i: 255 - i)
-            b = b.point(lambda i: 255 - i)
+            with tempfile.NamedTemporaryFile(suffix=extension) as file:
+                r, g, b, a = image.split()
 
-            inverted_image = Image.merge("RGBA", (r, g, b, a))
-            inverted_image.save(file)
-            await ctx.respond(attachment=file.name)
-    else:
-        image = Image.open(BytesIO(response.content)).convert("RGB")
+                r = r.point(lambda i: 255 - i)
+                g = g.point(lambda i: 255 - i)
+                b = b.point(lambda i: 255 - i)
 
-        with tempfile.NamedTemporaryFile(suffix=extension) as file:
-            inverted_image = ImageOps.invert(image)
-            inverted_image.save(file)
-            await ctx.respond(attachment=file.name)
+                inverted_image = Image.merge("RGBA", (r, g, b, a))
+                inverted_image.save(file)
+                await ctx.respond(attachment=file.name)
+        else:
+            image = Image.open(BytesIO(response.content)).convert("RGB")
+
+            with tempfile.NamedTemporaryFile(suffix=extension) as file:
+                inverted_image = ImageOps.invert(image)
+                inverted_image.save(file)
+                await ctx.respond(attachment=file.name)
+    except PIL.UnidentifiedImageError:
+        await ctx.respond("Looks like you didn't send an image! Come back with one and try again.")
 
 
 async def wikihow():
