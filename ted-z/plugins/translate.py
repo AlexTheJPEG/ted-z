@@ -1,14 +1,16 @@
+import random
+
 import lightbulb
 from libretranslatepy import LibreTranslateAPI
 
 LT_API = LibreTranslateAPI("https://lt.vern.cc/")
 LANGUAGE_LIST = LT_API.languages()
-LANGUAGE_DICT = {language["code"]: language["name"] for language in LANGUAGE_LIST}
-LANGUAGE_DICT_REV = {language["name"]: language["code"] for language in LANGUAGE_LIST}
+LANGUAGE_DICT = {language["code"]: language["name"].lower() for language in LANGUAGE_LIST}
+LANGUAGE_DICT_REV = {language["name"].lower(): language["code"] for language in LANGUAGE_LIST}
 
 LANGUAGE_CODES = list(LANGUAGE_DICT.keys())
 LANGUAGES = LANGUAGE_CODES + list(LANGUAGE_DICT_REV.keys())
-LANGUAGE_CHOICES = [f"{k}: {v}\n" for k, v in LANGUAGE_DICT]
+LANGUAGE_CHOICES = [f"{k}: {v.title()}\n" for k, v in LANGUAGE_DICT]
 
 plugin = lightbulb.Plugin("translate")
 
@@ -64,7 +66,66 @@ async def translate(ctx: lightbulb.Context) -> None:
             )
 
 
-# TODO: Bad translate command
+@plugin.command
+@lightbulb.option(name="phrase", description="The phrase to badly translate", type=str)
+@lightbulb.option(
+    name="iterations",
+    description="The number of languages to go through",
+    type=int,
+    min_value=1,
+    max_value=20,
+)
+@lightbulb.option(name="source", description="The source language", type=str)
+@lightbulb.command(
+    name="badtranslate",
+    description="Go through a language translator multiple times to see how bad it gets",
+)
+@lightbulb.implements(lightbulb.SlashCommand)
+async def badtranslate(ctx: lightbulb.Context) -> None:
+    source = ctx.options.source.lower()
+    if ctx.options.source == "detect":
+        source = LT_API.detect(ctx.options.phrase)[0]["language"]
+    if source not in LANGUAGES:
+        await ctx.respond(
+            f"The source ({source}) language is either invalid or unsupported!"
+            "\n\nUse `/langcodes` to see what languages you can use."
+        )
+    else:
+        if len(source) != 2:
+            source = LANGUAGE_DICT_REV[source.lower()]
+
+        badtranslate_string = (
+            ":anger_right: Beginning your bad translation. It may take a while depending on how"
+            " many languages you have to go through."
+        )
+        message = await ctx.respond(badtranslate_string)
+
+        translated_phrase = ctx.options.phrase
+        used_languages = random.sample(LANGUAGE_CODES, ctx.options.iterations)
+
+        current_src = source
+
+        for index, language in enumerate(used_languages):
+            translated_phrase = LT_API.translate(translated_phrase, current_src, language)
+
+            current_src = language
+
+            # TODO: Make a progress bar
+            await message.edit(
+                f"{badtranslate_string} ({index + 1}/{ctx.options.iterations} complete)"
+            )
+
+        await message.edit(
+            f"{badtranslate_string} ({ctx.options.iterations}/{ctx.options.iterations} complete)"
+        )
+
+        translated_phrase = LT_API.translate(translated_phrase, current_src, source)
+
+        language_chain = " -> ".join(used_languages)
+        await ctx.respond(
+            f"Translating **{ctx.options.phrase}** from {source} -> {language_chain} ->"
+            f" {source} gives us:\n\n{translated_phrase}"
+        )
 
 
 def load(bot: lightbulb.BotApp) -> None:
