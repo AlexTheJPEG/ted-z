@@ -2,11 +2,11 @@ from io import BytesIO
 import os
 import tempfile
 
+import aiohttp
 import hikari
 import lightbulb
 import PIL
 from PIL import Image, ImageOps
-import requests
 
 plugin = lightbulb.Plugin("images")
 
@@ -26,10 +26,12 @@ async def avatar(ctx: lightbulb.Context) -> None:
 @lightbulb.command(name="jpegify", description="Add some JPEG crustiness to an image")
 @lightbulb.implements(lightbulb.SlashCommand)
 async def jpegify(ctx: lightbulb.Context) -> None:
-    response = requests.get(ctx.options.image.url)
+    async with aiohttp.ClientSession() as session:
+        async with session.get(ctx.options.image.url) as response:
+            image = Image.open(BytesIO(await response.read()))
 
     try:
-        image = Image.open(BytesIO(response.content)).convert("RGB")
+        image = image.convert("RGB")
 
         with tempfile.NamedTemporaryFile(suffix=".jpg") as file:
             image.save(file, format="JPEG", optimize=True, quality=0)
@@ -43,12 +45,14 @@ async def jpegify(ctx: lightbulb.Context) -> None:
 @lightbulb.command(name="invert", description="Invert an image's colors")
 @lightbulb.implements(lightbulb.SlashCommand)
 async def invert(ctx: lightbulb.Context) -> None:
-    response = requests.get(ctx.options.image.url)
+    async with aiohttp.ClientSession() as session:
+        async with session.get(ctx.options.image.url) as response:
+            image = Image.open(BytesIO(await response.read()))
     _, extension = os.path.splitext(ctx.options.image.url)
 
     try:
         if extension == ".png":
-            image = Image.open(BytesIO(response.content)).convert("RGBA")
+            image = image.convert("RGBA")
 
             with tempfile.NamedTemporaryFile(suffix=extension) as file:
                 r, g, b, a = image.split()
@@ -61,7 +65,7 @@ async def invert(ctx: lightbulb.Context) -> None:
                 inverted_image.save(file)
                 await ctx.respond(attachment=file.name)
         else:
-            image = Image.open(BytesIO(response.content)).convert("RGB")
+            image = image.convert("RGB")
 
             with tempfile.NamedTemporaryFile(suffix=extension) as file:
                 inverted_image = ImageOps.invert(image)
