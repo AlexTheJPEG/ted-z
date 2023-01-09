@@ -2,12 +2,12 @@ import random
 
 import aiohttp
 import asyncio
-import crescent
+import lightbulb
 import hikari
 import miru
 
 
-plugin = crescent.Plugin()
+plugin = lightbulb.Plugin("games")
 
 RPS_EMOTES = {"rock": "\N{ROCK}", "paper": "\N{SCROLL}", "scissors": "\N{BLACK SCISSORS}"}
 RPS_WINLOSS = {
@@ -38,7 +38,7 @@ class RPSView(miru.View):
 
     @miru.button(emoji="\N{BLACK SQUARE FOR STOP}", style=hikari.ButtonStyle.DANGER, row=2)
     async def stop_button(self, button: miru.Button, ctx: miru.ViewContext) -> None:
-        await ctx.respond("Cancelled.", flags=hikari.MessageFlag.EPHEMERAL)
+        await ctx.respond("Cancelled.")
         self.stop()
 
 
@@ -68,23 +68,22 @@ class TriviaView(miru.View):
 
     @miru.button(emoji="\N{BLACK SQUARE FOR STOP}", style=hikari.ButtonStyle.DANGER, row=2)
     async def stop_button(self, button: miru.Button, ctx: miru.ViewContext) -> None:
-        await ctx.respond("Cancelled.", flags=hikari.MessageFlag.EPHEMERAL)
+        await ctx.respond("Cancelled.")
         self.stop()
 
 
-@plugin.include
-@crescent.command(name="rps", description="Play rock-paper-scissors")
-class RPSCommand:
-    async def callback(self, ctx: crescent.Context) -> None:
+@plugin.command
+@lightbulb.command(name="rps", description="Play rock-paper-scissors", ephemeral=True)
+@lightbulb.implements(lightbulb.SlashCommand)
+async def rps(ctx: lightbulb.Context) -> None:
+    while True:
         view = RPSView(timeout=60)
-        message = await ctx.respond(
-            "Pick a move!", components=view, ephemeral=True, ensure_message=True
-        )
+        message = await ctx.respond("Pick a move!", components=view)
         await view.start(message)
         await view.wait()
         if hasattr(view, "move"):
-            game_string = f"{ctx.user.mention}\nRock, paper, scissors, shoot!"
-            game = await ctx.respond(game_string, ensure_message=True, user_mentions=True)
+            game_string = f"Rock, paper, scissors, shoot!"
+            game = await ctx.respond(game_string, user_mentions=True)
             await asyncio.sleep(2)
 
             player_move = view.move
@@ -98,67 +97,85 @@ class RPSCommand:
             await game.edit(game_string)
             await asyncio.sleep(1)
 
-            self.bot_wins = RPS_WINLOSS[bot_move][0]
-            self.bot_loses = RPS_WINLOSS[bot_move][1]
+            bot_wins = RPS_WINLOSS[bot_move][0]
+            bot_loses = RPS_WINLOSS[bot_move][1]
 
-            match player_move:
-                case self.bot_wins:
-                    game_string += f"\n\n**I win!**"
-                case self.bot_loses:
-                    game_string += f"\n\n**You win.**"
-                case _:
-                    game_string += f"\n\n**It's a draw.**"
+            if player_move == bot_wins:
+                game_string += f"\n\n**I win!**"
+            elif player_move == bot_loses:
+                game_string += f"\n\n**You win.**"
+            else:
+                game_string += f"\n\n**It's a draw.**"
+
             await game.edit(game_string)
 
+            if not game_string.endswith("draw.**"):
+                break
 
-@plugin.include
-@crescent.command(name="trivia", description="Try to answer a random trivia question")
-class TriviaCommand:
-    async def callback(self, ctx: crescent.Context) -> None:
-        headers = {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.85 Safari/537.36"
-        }
+            await asyncio.sleep(1)
+        else:
+            break
 
-        async with aiohttp.ClientSession() as session:
-            async with session.get(
-                "https://the-trivia-api.com/api/questions?limit=1&region=US", headers=headers
-            ) as response:
-                question_json = (await response.json())[0]
 
-        category = question_json["category"]
-        question = question_json["question"]
+@plugin.command
+@lightbulb.command(name="trivia", description="Try to answer a random trivia question")
+@lightbulb.implements(lightbulb.SlashCommand)
+async def trivia(ctx: lightbulb.Context) -> None:
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.85 Safari/537.36"
+    }
 
-        correct_answer = question_json["correctAnswer"]
-        answers = question_json["incorrectAnswers"] + [correct_answer]
-        random.shuffle(answers)
+    # Get a random question
+    async with aiohttp.ClientSession() as session:
+        async with session.get(
+            "https://the-trivia-api.com/api/questions?limit=1&region=US", headers=headers
+        ) as response:
+            question_json = (await response.json())[0]
 
-        answers_with_letters = {chr(97 + i): answers[i] for i in range(len(answers))}
-        correct_answer_letter = chr(97 + answers.index(correct_answer))
+    category = question_json["category"]
+    question = question_json["question"]
 
-        answers_list = [f":regional_indicator_{k}: {v}" for k, v in answers_with_letters.items()]
+    # Shuffle the answers
+    correct_answer = question_json["correctAnswer"].strip()
+    answers = [answer.strip() for answer in question_json["incorrectAnswers"] + [correct_answer]]
+    random.shuffle(answers)
+
+    # Correspond each answer with a letter
+    answers_with_letters = {chr(97 + i): answers[i] for i in range(len(answers))}
+    correct_answer_letter = chr(97 + answers.index(correct_answer))
+
+    answers_list = [f":regional_indicator_{k}: {v}" for k, v in answers_with_letters.items()]
+    answers_string = "\n".join(answers_list)
+    trivia_string = [f"**Category: {category}**", question, answers_string]
+
+    view = TriviaView(timeout=60)
+    message = await ctx.respond("\n\n".join(trivia_string), components=view)
+    await view.start(message)
+    await view.wait()
+
+    if hasattr(view, "answer"):
+        # Indicate the right answer with a check mark
+        answers_list[answers.index(correct_answer)] += " :white_check_mark:"
+
+        if answers_with_letters[view.answer] == correct_answer:
+            await ctx.respond(f"{ctx.user.mention} That is correct!", user_mentions=True)
+        else:
+            await ctx.respond(
+                f"{ctx.user.mention} That is incorrect. "
+                f"The answer was: :regional_indicator_{correct_answer_letter}: {correct_answer}.",
+                user_mentions=True,
+            )
+            # Mark the user's answer with an X
+            answers_list[answers.index(answers_with_letters[view.answer])] += " :x:"
+
         answers_string = "\n".join(answers_list)
         trivia_string = [f"**Category: {category}**", question, answers_string]
+        await message.edit("\n\n".join(trivia_string))
 
-        view = TriviaView(timeout=60)
-        message = await ctx.respond(
-            "\n\n".join(trivia_string), components=view, ensure_message=True
-        )
-        await view.start(message)
-        await view.wait()
 
-        if hasattr(view, "answer"):
-            answers_list[answers.index(correct_answer)] += " :white_check_mark:"
+def load(bot: lightbulb.BotApp) -> None:
+    bot.add_plugin(plugin)
 
-            if answers_with_letters[view.answer] == correct_answer:
-                await ctx.respond(f"{ctx.user.mention} That is correct!", user_mentions=True)
-            else:
-                await ctx.respond(
-                    f"{ctx.user.mention} That is incorrect. "
-                    f"The answer was :regional_indicator_{correct_answer_letter}: {correct_answer}.",
-                    user_mentions=True,
-                )
-                answers_list[answers.index(answers_with_letters[view.answer])] += " :x:"
 
-            answers_string = "\n".join(answers_list)
-            trivia_string = [f"**Category: {category}**", question, answers_string]
-            await message.edit("\n\n".join(trivia_string))
+def unload(bot: lightbulb.BotApp) -> None:
+    bot.remove_plugin(plugin)
