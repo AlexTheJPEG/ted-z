@@ -94,8 +94,39 @@ async def wikihow(ctx: lightbulb.Context) -> None:
     await ctx.respond(attachment=random.choice(images).find("img")[1].attrs["src"])  # type: ignore
 
 
-async def color():
-    pass
+@plugin.command
+@lightbulb.command(name="color", description="Generate a random color")
+@lightbulb.implements(lightbulb.SlashCommand)
+async def color(ctx: lightbulb.Context) -> None:
+    hex_chars = "0123456789ABCDEF"
+    random_hex = "".join([random.choice(hex_chars) for _ in range(6)])
+
+    async with aiohttp.ClientSession() as session:
+        async with session.get(
+            f"https://www.thecolorapi.com/id?hex={random_hex}", headers=HEADERS
+        ) as response:
+            color_json = await response.json()
+
+    rgb = color_json["rgb"]["value"]
+    hsl = color_json["hsl"]["value"]
+    hsv = color_json["hsv"]["value"]
+    cmyk = color_json["cmyk"]["value"]
+    name = color_json["name"]["value"]
+    closest = color_json["name"]["closest_named_hex"]
+    exact = color_json["name"]["exact_match_name"]
+
+    r, g, b = color_json["rgb"]["r"], color_json["rgb"]["g"], color_json["rgb"]["b"]
+    image = Image.new("RGB", (300, 300), (r, g, b))
+
+    color_string = f"**Hex: #{random_hex}**\nRGB: {rgb}\nHSL: {hsl}\nHSV: {hsv}\nCMYK: {cmyk}\n\n"
+    if exact:
+        color_string += f"Name: **{name}**"
+    else:
+        color_string += f"Closest named color: **{name}** ({closest})"
+
+    with tempfile.NamedTemporaryFile(suffix=".png") as file:
+        image.save(file)
+        await ctx.respond(color_string, attachment=file.name)
 
 
 async def gradient():
