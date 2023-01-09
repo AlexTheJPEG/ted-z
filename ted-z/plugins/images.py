@@ -1,12 +1,16 @@
 from io import BytesIO
 import os
+import random
 import tempfile
 
 import aiohttp
+from gazpacho.soup import Soup
 import hikari
 import lightbulb
 import PIL
 from PIL import Image, ImageOps
+
+from ..utils.web import HEADERS
 
 plugin = lightbulb.Plugin("images")
 
@@ -75,9 +79,19 @@ async def invert(ctx: lightbulb.Context) -> None:
         await ctx.respond("Looks like you didn't send an image! Come back with one and try again.")
 
 
-async def wikihow():
-    # https://wikihow.com/Special:Randomizer
-    pass
+@plugin.command
+@lightbulb.command(name="wikihow", description="Get a random Wikihow image")
+@lightbulb.implements(lightbulb.SlashCommand)
+async def wikihow(ctx: lightbulb.Context) -> None:
+    async with aiohttp.ClientSession() as session:
+        async with session.get(
+            "https://wikihow.com/Special:Randomizer", headers=HEADERS
+        ) as response:
+            article = Soup(await response.text())
+
+    images = article.find("li", {"id": "step-id"})
+
+    await ctx.respond(attachment=random.choice(images).find("img")[1].attrs["src"])  # type: ignore
 
 
 async def color():
