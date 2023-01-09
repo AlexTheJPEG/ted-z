@@ -346,6 +346,20 @@ files = [
 ]
 
 [[package]]
+name = "gazpacho"
+version = "1.1"
+description = "The simple, fast, and modern web scraping library"
+category = "main"
+optional = false
+python-versions = ">=3.6"
+files = [
+    {file = "gazpacho-1.1.tar.gz", hash = "sha256:1579c1be2de05b5ded0a97107b179d12491392fb095aeab185b283ea48cd7010"},
+]
+
+[package.extras]
+dev = ["black (>=20.8b1)", "mypy (>=0.782)", "portray (>=1.4.0)", "pytest (>=6.0.2)"]
+
+[[package]]
 name = "hikari"
 version = "2.0.0.dev115"
 description = "A sane Discord API for Python 3 built on asyncio and good intentions"
@@ -766,4 +780,4 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.11,<3.12"
-content-hash = "701b99771b9062c658ed7c9080738179b8d0d4322d9020ef40ed18d2d6263ab8"
+content-hash = "95607a34a710d29dc4608016ffb9294152bcf62a4ac67c10a70ff8bf0cf5be0c"
