@@ -111,6 +111,7 @@ async def color(ctx: lightbulb.Context) -> None:
     hsl = color_json["hsl"]["value"]
     hsv = color_json["hsv"]["value"]
     cmyk = color_json["cmyk"]["value"]
+
     name = color_json["name"]["value"]
     closest = color_json["name"]["closest_named_hex"]
     exact = color_json["name"]["exact_match_name"]
@@ -118,7 +119,7 @@ async def color(ctx: lightbulb.Context) -> None:
     r, g, b = color_json["rgb"]["r"], color_json["rgb"]["g"], color_json["rgb"]["b"]
     image = Image.new("RGB", (300, 300), (r, g, b))
 
-    color_string = f"**Hex: #{random_hex}**\nRGB: {rgb}\nHSL: {hsl}\nHSV: {hsv}\nCMYK: {cmyk}\n\n"
+    color_string = f"**#{random_hex}**\n{rgb}\n{hsl}\n{hsv}\n{cmyk}\n\n"
     if exact:
         color_string += f"Name: **{name}**"
     else:
