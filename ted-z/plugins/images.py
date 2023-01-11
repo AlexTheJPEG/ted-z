@@ -143,10 +143,6 @@ async def color(ctx: lightbulb.Context) -> None:
     )
 
 
-async def gradient():
-    pass
-
-
 async def apod():
     # https://api.nasa.gov/
     pass
