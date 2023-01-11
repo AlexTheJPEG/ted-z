@@ -44,33 +44,44 @@ class RPSView(miru.View):
 
 
 class TriviaView(miru.View):
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, author, public, *args, **kwargs) -> None:
+        self.author = author
+        self.public = public
         super().__init__(*args, **kwargs)
 
     @miru.button(label="A", style=hikari.ButtonStyle.PRIMARY)
     async def a_button(self, button: miru.Button, ctx: miru.Context) -> None:
-        self.answer = "a"
-        self.stop()
+        if (self.public or ctx.author.id == self.author.id) and button.label is not None:
+            self.answer = button.label.lower()
+            self.who_clicked = ctx.user
+            self.stop()
 
     @miru.button(label="B", style=hikari.ButtonStyle.PRIMARY)
     async def b_button(self, button: miru.Button, ctx: miru.Context) -> None:
-        self.answer = "b"
-        self.stop()
+        if (self.public or ctx.author.id == self.author.id) and button.label is not None:
+            self.answer = button.label.lower()
+            self.who_clicked = ctx.user
+            self.stop()
 
     @miru.button(label="C", style=hikari.ButtonStyle.PRIMARY)
     async def c_button(self, button: miru.Button, ctx: miru.Context) -> None:
-        self.answer = "c"
-        self.stop()
+        if (self.public or ctx.author.id == self.author.id) and button.label is not None:
+            self.answer = button.label.lower()
+            self.who_clicked = ctx.user
+            self.stop()
 
     @miru.button(label="D", style=hikari.ButtonStyle.PRIMARY)
     async def d_button(self, button: miru.Button, ctx: miru.Context) -> None:
-        self.answer = "d"
-        self.stop()
+        if (self.public or ctx.author.id == self.author.id) and button.label is not None:
+            self.answer = button.label.lower()
+            self.who_clicked = ctx.user
+            self.stop()
 
     @miru.button(emoji="\N{BLACK SQUARE FOR STOP}", style=hikari.ButtonStyle.DANGER, row=2)
     async def stop_button(self, button: miru.Button, ctx: miru.ViewContext) -> None:
-        await ctx.respond("Cancelled.")
-        self.stop()
+        if ctx.author.id == self.author.id:
+            await ctx.respond("Cancelled.")
+            self.stop()
 
 
 @plugin.command
@@ -119,6 +130,12 @@ async def rps(ctx: lightbulb.Context) -> None:
 
 
 @plugin.command
+@lightbulb.option(
+    name="public",
+    description="Can anyone answer the question? (default: False, only you can answer)",
+    type=bool,
+    default=False,
+)
 @lightbulb.command(name="trivia", description="Try to answer a random trivia question")
 @lightbulb.implements(lightbulb.SlashCommand)
 async def trivia(ctx: lightbulb.Context) -> None:
@@ -145,7 +162,7 @@ async def trivia(ctx: lightbulb.Context) -> None:
     answers_string = "\n".join(answers_list)
     trivia_string = [f"**Category: {category}**", question, answers_string]
 
-    view = TriviaView(timeout=60)
+    view = TriviaView(ctx.author, ctx.options.public, timeout=60)
     message = await ctx.respond("\n\n".join(trivia_string), components=view)
     await view.start(message)
     await view.wait()
@@ -155,11 +172,11 @@ async def trivia(ctx: lightbulb.Context) -> None:
         answers_list[answers.index(correct_answer)] += " :white_check_mark:"
 
         if answers_with_letters[view.answer] == correct_answer:
-            await ctx.respond(f"{ctx.user.mention} That is correct!", user_mentions=True)
+            await ctx.respond(f"{view.who_clicked.mention} That is correct!", user_mentions=True)
         else:
             await ctx.respond(
                 (
-                    f"{ctx.user.mention} That is incorrect. The answer was:"
+                    f"{view.who_clicked.mention} That is incorrect. The answer was:"
                     f" :regional_indicator_{correct_answer_letter}: {correct_answer}."
                 ),
                 user_mentions=True,
