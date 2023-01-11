@@ -1,13 +1,11 @@
-from io import BytesIO
 import os
 import random
-import tempfile
+from io import BytesIO
 
 import aiohttp
-from gazpacho.soup import Soup
 import hikari
 import lightbulb
-import PIL
+from gazpacho.soup import Soup
 from PIL import Image, ImageOps
 
 from ..utils.web import HEADERS
@@ -30,17 +28,22 @@ async def avatar(ctx: lightbulb.Context) -> None:
 @lightbulb.command(name="jpegify", description="Add some JPEG crustiness to an image")
 @lightbulb.implements(lightbulb.SlashCommand)
 async def jpegify(ctx: lightbulb.Context) -> None:
-    async with aiohttp.ClientSession() as session:
-        async with session.get(ctx.options.image.url) as response:
-            image = Image.open(BytesIO(await response.read()))
+    attachment: hikari.Attachment = ctx.options.image
+    media: str | None = attachment.media_type
 
-    try:
+    if media is not None and media.startswith("image"):
+        async with aiohttp.ClientSession() as session:
+            async with session.get(attachment.url) as response:
+                image: Image.Image = Image.open(BytesIO(await response.read()))
+
         image = image.convert("RGB")
 
-        with tempfile.NamedTemporaryFile(suffix=".jpg") as file:
-            image.save(file, format="JPEG", optimize=True, quality=0)
-            await ctx.respond(attachment=file.name)
-    except PIL.UnidentifiedImageError:
+        buffer: BytesIO = BytesIO()
+        image.save(buffer, format="JPEG", optimize=True, quality=0)
+
+        filename, _ = os.path.splitext(attachment.filename)
+        await ctx.respond(attachment=hikari.Bytes(buffer.getvalue(), f"{filename}-jpegify.jpg"))
+    else:
         await ctx.respond("Looks like you didn't send an image! Come back with one and try again.")
 
 
@@ -49,33 +52,40 @@ async def jpegify(ctx: lightbulb.Context) -> None:
 @lightbulb.command(name="invert", description="Invert an image's colors")
 @lightbulb.implements(lightbulb.SlashCommand)
 async def invert(ctx: lightbulb.Context) -> None:
-    async with aiohttp.ClientSession() as session:
-        async with session.get(ctx.options.image.url) as response:
-            image = Image.open(BytesIO(await response.read()))
-    _, extension = os.path.splitext(ctx.options.image.url)
+    attachment: hikari.Attachment = ctx.options.image
+    media: str | None = attachment.media_type
 
-    try:
-        if extension == ".png":
+    if media is not None and media.startswith("image"):
+        async with aiohttp.ClientSession() as session:
+            async with session.get(ctx.options.image.url) as response:
+                image = Image.open(BytesIO(await response.read()))
+
+        format = image.format
+
+        if image.mode == "RGBA":
+            # Map each RGB channel to its inverse, leave alpha alone
             image = image.convert("RGBA")
 
-            with tempfile.NamedTemporaryFile(suffix=extension) as file:
-                r, g, b, a = image.split()
+            r, g, b, a = image.split()
 
-                r = r.point(lambda i: 255 - i)
-                g = g.point(lambda i: 255 - i)
-                b = b.point(lambda i: 255 - i)
+            r = r.point(lambda i: 255 - i)
+            g = g.point(lambda i: 255 - i)
+            b = b.point(lambda i: 255 - i)
 
-                inverted_image = Image.merge("RGBA", (r, g, b, a))
-                inverted_image.save(file)
-                await ctx.respond(attachment=file.name)
+            inverted_image = Image.merge("RGBA", (r, g, b, a))
         else:
+            # Use the ImageOps method, which takes less lines
             image = image.convert("RGB")
+            inverted_image = ImageOps.invert(image)
 
-            with tempfile.NamedTemporaryFile(suffix=extension) as file:
-                inverted_image = ImageOps.invert(image)
-                inverted_image.save(file)
-                await ctx.respond(attachment=file.name)
-    except PIL.UnidentifiedImageError:
+        buffer: BytesIO = BytesIO()
+        inverted_image.save(buffer, format=format)
+
+        filename, extension = os.path.splitext(attachment.filename)
+        await ctx.respond(
+            attachment=hikari.Bytes(buffer.getvalue(), f"{filename}-inverted.{extension}")
+        )
+    else:
         await ctx.respond("Looks like you didn't send an image! Come back with one and try again.")
 
 
@@ -125,9 +135,12 @@ async def color(ctx: lightbulb.Context) -> None:
     else:
         color_string += f"Closest named color: **{name}** ({closest})"
 
-    with tempfile.NamedTemporaryFile(suffix=".png") as file:
-        image.save(file)
-        await ctx.respond(color_string, attachment=file.name)
+    buffer: BytesIO = BytesIO()
+    image.save(buffer, format="PNG")
+
+    await ctx.respond(
+        color_string, attachment=hikari.Bytes(buffer.getvalue(), f"{random_hex}.png")
+    )
 
 
 async def gradient():
