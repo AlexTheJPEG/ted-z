@@ -1,2 +1,5 @@
 [bot]
 token = "[bot token]"
+
+[api]
+nasa = "[nasa api token]"

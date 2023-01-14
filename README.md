@@ -8,9 +8,15 @@ Written using [Hikari](https://github.com/hikari-py/hikari) and [Lightbulb](http
 To get started, clone this repo somewhere on your machine, then create a file in the project directory called `bot_settings.toml`. This will contain all the settings required for the bot.
 
 The file should contain at least the following settings:
-```
+```toml
 [bot]
 token = "[bot token]"
+```
+
+Other settings include:
+```toml
+[api]
+nasa = "[nasa api token]"  # needed for /apod
 ```
 
 As for dependencies, they are all handled by [Poetry](https://github.com/python-poetry/poetry). Simply run `poetry install` in the project directory.

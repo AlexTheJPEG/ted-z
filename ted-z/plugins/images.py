@@ -8,6 +8,7 @@ import lightbulb
 from gazpacho.soup import Soup
 from PIL import Image, ImageOps
 
+from ..utils.opening import load_bot_settings
 from ..utils.web import HEADERS
 
 plugin = lightbulb.Plugin("images")
@@ -143,9 +144,28 @@ async def color(ctx: lightbulb.Context) -> None:
     )
 
 
-async def apod():
-    # https://api.nasa.gov/
-    pass
+@plugin.command
+@lightbulb.command(name="apod", description="Get NASA's Astronomy Picture of the Day")
+@lightbulb.implements(lightbulb.SlashCommand)
+async def apod(ctx: lightbulb.Context):
+    try:
+        nasa_api = load_bot_settings()["api"]["nasa"]
+        async with aiohttp.ClientSession() as session:
+            async with session.get(
+                f"https://api.nasa.gov/planetary/apod?api_key={nasa_api}", headers=HEADERS
+            ) as response:
+                apod_json = await response.json()
+
+        title = apod_json["title"]
+        explanation = apod_json["explanation"]
+        image = apod_json["url"]
+
+        await ctx.respond(f"**{title}**\n\n{explanation}", attachment=image)
+    except KeyError:
+        await ctx.respond(
+            "Seems you don't have a NASA API key! Try putting one in your bot settings file to use"
+            " this command."
+        )
 
 
 async def yugioh():
