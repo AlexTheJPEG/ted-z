@@ -168,9 +168,20 @@ async def apod(ctx: lightbulb.Context):
         )
 
 
-async def yugioh():
+@plugin.command
+@lightbulb.command(name="yugioh", description="Get a random Yu-Gi-Oh! card")
+@lightbulb.implements(lightbulb.SlashCommand)
+async def yugioh(ctx: lightbulb.Context):
     # https://ygoprodeck.com/api-guide/
-    pass
+    async with aiohttp.ClientSession() as session:
+        async with session.get(
+            "https://db.ygoprodeck.com/api/v7/randomcard.php", headers=HEADERS
+        ) as response:
+            yugioh_json = await response.json()
+    
+    card_image = yugioh_json["card_images"][0]
+    
+    await ctx.respond(attachment=card_image["image_url"])
 
 
 async def xkcd():
