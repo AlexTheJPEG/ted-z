@@ -29,17 +29,17 @@ async def avatar(ctx: lightbulb.Context) -> None:
 @lightbulb.command(name="jpegify", description="Add some JPEG crustiness to an image")
 @lightbulb.implements(lightbulb.SlashCommand)
 async def jpegify(ctx: lightbulb.Context) -> None:
-    attachment: hikari.Attachment = ctx.options.image
-    media: str | None = attachment.media_type
+    attachment = ctx.options.image
+    media = attachment.media_type
 
-    if media is not None and media.startswith("image"):
+    if media.startswith("image"):
         async with aiohttp.ClientSession() as session:
             async with session.get(attachment.url) as response:
-                image: Image.Image = Image.open(BytesIO(await response.read()))
+                image = Image.open(BytesIO(await response.read()))
 
         image = image.convert("RGB")
 
-        buffer: BytesIO = BytesIO()
+        buffer = BytesIO()
         image.save(buffer, format="JPEG", optimize=True, quality=0)
 
         filename, _ = os.path.splitext(attachment.filename)
@@ -53,10 +53,10 @@ async def jpegify(ctx: lightbulb.Context) -> None:
 @lightbulb.command(name="invert", description="Invert an image's colors")
 @lightbulb.implements(lightbulb.SlashCommand)
 async def invert(ctx: lightbulb.Context) -> None:
-    attachment: hikari.Attachment = ctx.options.image
-    media: str | None = attachment.media_type
+    attachment = ctx.options.image
+    media = attachment.media_type
 
-    if media is not None and media.startswith("image"):
+    if media.startswith("image"):
         async with aiohttp.ClientSession() as session:
             async with session.get(ctx.options.image.url) as response:
                 image = Image.open(BytesIO(await response.read()))
@@ -79,7 +79,7 @@ async def invert(ctx: lightbulb.Context) -> None:
             image = image.convert("RGB")
             inverted_image = ImageOps.invert(image)
 
-        buffer: BytesIO = BytesIO()
+        buffer = BytesIO()
         inverted_image.save(buffer, format=format)
 
         filename, extension = os.path.splitext(attachment.filename)
@@ -136,7 +136,7 @@ async def color(ctx: lightbulb.Context) -> None:
     else:
         color_string += f"Closest named color: **{name}** ({closest})"
 
-    buffer: BytesIO = BytesIO()
+    buffer = BytesIO()
     image.save(buffer, format="PNG")
 
     await ctx.respond(
