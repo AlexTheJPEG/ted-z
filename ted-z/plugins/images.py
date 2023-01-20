@@ -6,6 +6,7 @@ from io import BytesIO
 import aiohttp
 import hikari
 import lightbulb
+from bs4 import BeautifulSoup
 from gazpacho.soup import Soup
 from PIL import Image, ImageOps
 
@@ -99,11 +100,13 @@ async def wikihow(ctx: lightbulb.Context) -> None:
         async with session.get(
             "https://wikihow.com/Special:Randomizer", headers=HEADERS
         ) as response:
-            article = Soup(await response.text())
+            article = BeautifulSoup(await response.text(), "html.parser")
 
-    images = article.find("li", {"id": "step-id"})
+    steps = article.find_all("li", id=re.compile(r"step-id-\d+"))
 
-    await ctx.respond(attachment=random.choice(images).find("img")[1].attrs["src"])  # type: ignore
+    image = random.choice(steps).find("img")["data-srclarge"]
+
+    await ctx.respond(attachment=f"https://www.wikihow.com{image}")
 
 
 @plugin.command
