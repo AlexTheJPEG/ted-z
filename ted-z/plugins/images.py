@@ -179,9 +179,9 @@ async def yugioh(ctx: lightbulb.Context):
             "https://db.ygoprodeck.com/api/v7/randomcard.php", headers=HEADERS
         ) as response:
             yugioh_json = await response.json()
-    
+
     card_image = yugioh_json["card_images"][0]
-    
+
     await ctx.respond(attachment=card_image["image_url"])
 
 
@@ -190,9 +190,7 @@ async def yugioh(ctx: lightbulb.Context):
 @lightbulb.implements(lightbulb.SlashCommand)
 async def xkcd(ctx: lightbulb.Context):
     async with aiohttp.ClientSession() as session:
-        async with session.get(
-            "https://c.xkcd.com/random/comic/", headers=HEADERS
-        ) as response:
+        async with session.get("https://c.xkcd.com/random/comic/", headers=HEADERS) as response:
             text = await response.text()
             website = Soup(text)
 
@@ -207,7 +205,7 @@ async def xkcd(ctx: lightbulb.Context):
     await ctx.respond(
         f"**{title}**\n{link}\n\n__Alt text__\n{alt}",
         attachment=f"https:{image}",
-        flags=hikari.MessageFlag.SUPPRESS_EMBEDS
+        flags=hikari.MessageFlag.SUPPRESS_EMBEDS,
     )
 
 
@@ -216,7 +214,9 @@ async def xkcd(ctx: lightbulb.Context):
 @lightbulb.implements(lightbulb.SlashCommand)
 async def person(ctx: lightbulb.Context):
     async with aiohttp.ClientSession() as session:
-        async with session.get("https://thispersondoesnotexist.com/image", headers=HEADERS) as response:
+        async with session.get(
+            "https://thispersondoesnotexist.com/image", headers=HEADERS
+        ) as response:
             image = Image.open(BytesIO(await response.read()))
 
     buffer = BytesIO()
