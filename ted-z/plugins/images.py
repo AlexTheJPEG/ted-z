@@ -7,7 +7,6 @@ import aiohttp
 import hikari
 import lightbulb
 from bs4 import BeautifulSoup
-from gazpacho.soup import Soup
 from PIL import Image, ImageOps
 
 from ..utils.opening import load_bot_settings
@@ -194,20 +193,20 @@ async def yugioh(ctx: lightbulb.Context):
 async def xkcd(ctx: lightbulb.Context):
     async with aiohttp.ClientSession() as session:
         async with session.get("https://c.xkcd.com/random/comic/", headers=HEADERS) as response:
-            text = await response.text()
-            website = Soup(text)
+            website = BeautifulSoup(await response.text(), "html.parser")
 
-    comic = website.find("div", {"id": "comic"})[0].find("img")  # type: ignore
-    image = comic.attrs["src"]  # type: ignore
-    link = re.findall(r"https:\/\/xkcd\.com\/\d+", text)[0]
+    image = website.select("#comic > img")[0]
+    image_url = image["src"]
 
     # Not confusing at all
-    title = comic.attrs["alt"]  # type: ignore
-    alt = comic.attrs["title"]  # type: ignore
+    image_alt = image["title"]
+    comic_title = image["alt"]
+
+    link = website.select("#middleContainer > a:nth-child(6)")[0]["href"]
 
     await ctx.respond(
-        f"**{title}**\n{link}\n\n__Alt text__\n{alt}",
-        attachment=f"https:{image}",
+        f"**{comic_title}**\n{link}\n\n__Alt text__\n{image_alt}",
+        attachment=f"https:{image_url}",
         flags=hikari.MessageFlag.SUPPRESS_EMBEDS,
     )
 
