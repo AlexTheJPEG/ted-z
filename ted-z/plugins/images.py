@@ -1,5 +1,6 @@
 import os
 import random
+import re
 from io import BytesIO
 
 import aiohttp
@@ -184,9 +185,30 @@ async def yugioh(ctx: lightbulb.Context):
     await ctx.respond(attachment=card_image["image_url"])
 
 
-async def xkcd():
-    # https://xkcd.com/
-    pass
+@plugin.command
+@lightbulb.command(name="xkcd", description="Get a random XKCD comic")
+@lightbulb.implements(lightbulb.SlashCommand)
+async def xkcd(ctx: lightbulb.Context):
+    async with aiohttp.ClientSession() as session:
+        async with session.get(
+            "https://c.xkcd.com/random/comic/", headers=HEADERS
+        ) as response:
+            text = await response.text()
+            website = Soup(text)
+
+    comic = website.find("div", {"id": "comic"})[0].find("img")  # type: ignore
+    image = comic.attrs["src"]  # type: ignore
+    link = re.findall(r"https:\/\/xkcd\.com\/\d+", text)[0]
+
+    # Not confusing at all
+    title = comic.attrs["alt"]  # type: ignore
+    alt = comic.attrs["title"]  # type: ignore
+
+    await ctx.respond(
+        f"**{title}**\n{link}\n\n__Alt text__\n{alt}",
+        attachment=f"https:{image}",
+        flags=hikari.MessageFlag.SUPPRESS_EMBEDS
+    )
 
 
 @plugin.command
