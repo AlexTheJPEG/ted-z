@@ -189,9 +189,18 @@ async def xkcd():
     pass
 
 
-async def person():
-    # https://thispersondoesnotexist.com/
-    pass
+@plugin.command
+@lightbulb.command(name="person", description="Generate a random person that does not exist")
+@lightbulb.implements(lightbulb.SlashCommand)
+async def person(ctx: lightbulb.Context):
+    async with aiohttp.ClientSession() as session:
+        async with session.get("https://thispersondoesnotexist.com/image", headers=HEADERS) as response:
+            image = Image.open(BytesIO(await response.read()))
+
+    buffer = BytesIO()
+    image.save(buffer, format="PNG")
+
+    await ctx.respond(attachment=hikari.Bytes(buffer.getvalue(), f"person.png"))
 
 
 def load(bot: lightbulb.BotApp) -> None:
