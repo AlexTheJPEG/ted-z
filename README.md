@@ -1,4 +1,6 @@
-<center><img src="./assets/ted.svg"></center>
+<p align="center">
+    <img width="200" src="./assets/ted.svg" alt="Ted face">
+</p>
 
 # Ted Z
 ~~this is the last revision i swear~~
