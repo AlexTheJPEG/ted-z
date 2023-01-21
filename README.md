@@ -1,3 +1,6 @@
+![Ted Face](./assets/ted.svg)
+<img src="./assets/ted.svg">
+
 # Ted Z
 ~~this is the last revision i swear~~
 
