@@ -151,6 +151,7 @@ async def rps(ctx: lightbulb.Context) -> None:
                 await game.edit(game_string)
                 await asyncio.sleep(1)
 
+                # Get the moves that the bot would win / lose against
                 bot_wins = RPS_WINLOSS[bot_move][0]
                 bot_loses = RPS_WINLOSS[bot_move][1]
 
@@ -164,7 +165,7 @@ async def rps(ctx: lightbulb.Context) -> None:
                 if not ctx.options.continue_after_draw or not game_string.endswith("draw.**"):
                     await game.edit(game_string)
                     break
-
+                
                 game_string += " Running it back."
                 await game.edit(game_string)
                 await asyncio.sleep(1)
@@ -192,6 +193,7 @@ async def rps(ctx: lightbulb.Context) -> None:
         if hasattr(accept_view, "option"):
             if accept_view.option == "accept":
                 while True:
+                    # Player one (author) picks a move
                     player_one_view = RPSView(ctx.author, timeout=60)
                     player_one_message = await ctx.respond(
                         f"{ctx.author.mention} Pick a move!",
@@ -207,6 +209,7 @@ async def rps(ctx: lightbulb.Context) -> None:
                             await ctx.respond(f"{ctx.author.mention} took too long.")
                         break
 
+                    # Player two (opponent) picks a move
                     player_two_view = RPSView(opponent, timeout=60)
                     player_two_message = await ctx.respond(
                         f"{opponent.mention} Pick a move!",
@@ -230,7 +233,8 @@ async def rps(ctx: lightbulb.Context) -> None:
 
                     player_one_move = player_one_view.move
                     player_two_move = player_two_view.move
-
+                    
+                    # Add both player moves at the same time instead of waiting per player
                     game_string += (
                         f"\n\n{RPS_EMOTES[player_one_move]} {ctx.author.mention} chose"
                         f" {player_one_move}."
@@ -240,6 +244,7 @@ async def rps(ctx: lightbulb.Context) -> None:
                     await game.edit(game_string)
                     await asyncio.sleep(1)
 
+                    # Decide the outcome
                     player_two_wins = RPS_WINLOSS[player_two_move][0]
                     player_two_loses = RPS_WINLOSS[player_two_move][1]
 
