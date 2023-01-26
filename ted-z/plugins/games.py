@@ -96,7 +96,7 @@ class TriviaView(miru.View):
     type=hikari.User,
     default=None,
 )
-@lightbulb.command(name="rps", description="Play rock-paper-scissors")
+@lightbulb.command(name="rps", description="Play Rock-Paper-Scissors")
 @lightbulb.implements(lightbulb.SlashCommand)
 async def rps(ctx: lightbulb.Context) -> None:
     async def player_vs_bot():
