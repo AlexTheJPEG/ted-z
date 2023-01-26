@@ -85,48 +85,62 @@ class TriviaView(miru.View):
 
 
 @plugin.command
+@lightbulb.option(
+    name="player",
+    description="Who to play against (default: play against me!)",
+    type=hikari.User,
+    default=None
+)
 @lightbulb.command(name="rps", description="Play rock-paper-scissors", ephemeral=True)
 @lightbulb.implements(lightbulb.SlashCommand)
 async def rps(ctx: lightbulb.Context) -> None:
-    while True:
-        view = RPSView(timeout=60)
-        message = await ctx.respond("Pick a move!", components=view)
-        await view.start(message)
-        await view.wait()
-        if hasattr(view, "move"):
-            game_string = f"Rock, paper, scissors, shoot!"
-            game = await ctx.respond(game_string, user_mentions=True)
-            await asyncio.sleep(2)
+    async def player_vs_bot():
+        while True:
+            view = RPSView(timeout=60)
+            message = await ctx.respond("Pick a move!", components=view)
+            await view.start(message)
+            await view.wait()
+            if hasattr(view, "move"):
+                game_string = f"Rock, paper, scissors, shoot!"
+                game = await ctx.respond(game_string, user_mentions=True)
+                await asyncio.sleep(2)
 
-            player_move = view.move
-            bot_move = random.choice(list(RPS_EMOTES.keys()))
+                player_move = view.move
+                bot_move = random.choice(list(RPS_EMOTES.keys()))
 
-            game_string += f"\n\n{RPS_EMOTES[player_move]} You chose {player_move}."
-            await game.edit(game_string)
-            await asyncio.sleep(1)
+                game_string += f"\n\n{RPS_EMOTES[player_move]} You chose {player_move}."
+                await game.edit(game_string)
+                await asyncio.sleep(1)
 
-            game_string += f"\n{RPS_EMOTES[bot_move]} I chose {bot_move}."
-            await game.edit(game_string)
-            await asyncio.sleep(1)
+                game_string += f"\n{RPS_EMOTES[bot_move]} I chose {bot_move}."
+                await game.edit(game_string)
+                await asyncio.sleep(1)
 
-            bot_wins = RPS_WINLOSS[bot_move][0]
-            bot_loses = RPS_WINLOSS[bot_move][1]
+                bot_wins = RPS_WINLOSS[bot_move][0]
+                bot_loses = RPS_WINLOSS[bot_move][1]
 
-            if player_move == bot_wins:
-                game_string += f"\n\n**I win!**"
-            elif player_move == bot_loses:
-                game_string += f"\n\n**You win.**"
+                if player_move == bot_wins:
+                    game_string += f"\n\n**I win!**"
+                elif player_move == bot_loses:
+                    game_string += f"\n\n**You win.**"
+                else:
+                    game_string += f"\n\n**It's a draw.**"
+
+                await game.edit(game_string)
+
+                if not game_string.endswith("draw.**"):
+                    break
+
+                await asyncio.sleep(1)
             else:
-                game_string += f"\n\n**It's a draw.**"
-
-            await game.edit(game_string)
-
-            if not game_string.endswith("draw.**"):
                 break
 
-            await asyncio.sleep(1)
-        else:
-            break
+    if ctx.options.player is None or ctx.options.player.mention == ctx.bot.get_me().mention:  # type: ignore
+        await player_vs_bot()
+    elif ctx.options.player.mention == ctx.author.mention:
+        await ctx.respond("You can't play against yourself!")
+    else:
+        await ctx.respond("guh")
 
 
 @plugin.command
