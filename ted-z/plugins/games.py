@@ -23,29 +23,26 @@ class RPSView(miru.View):
         self.player = player
         super().__init__(*args, **kwargs)
 
-    @miru.button(label="Rock", emoji="\N{ROCK}", style=hikari.ButtonStyle.PRIMARY)
-    async def rock_button(self, button: miru.Button, ctx: miru.Context) -> None:
+    def button_check(self, button: miru.Button, ctx: miru.Context):
         if ctx.author.id == self.player.id and button.label is not None:
             self.move = button.label.lower() 
             self.stop()
+
+    @miru.button(label="Rock", emoji="\N{ROCK}", style=hikari.ButtonStyle.PRIMARY)
+    async def rock_button(self, button: miru.Button, ctx: miru.Context) -> None:
+        self.button_check(button, ctx)
 
     @miru.button(label="Paper", emoji="\N{SCROLL}", style=hikari.ButtonStyle.PRIMARY)
     async def paper_button(self, button: miru.Button, ctx: miru.Context) -> None:
-        if ctx.author.id == self.player.id and button.label is not None:
-            self.move = button.label.lower() 
-            self.stop()
+        self.button_check(button, ctx)
 
     @miru.button(label="Scissors", emoji="\N{BLACK SCISSORS}", style=hikari.ButtonStyle.PRIMARY)
     async def scissors_button(self, button: miru.Button, ctx: miru.Context) -> None:
-        if ctx.author.id == self.player.id and button.label is not None:
-            self.move = button.label.lower() 
-            self.stop()
+        self.button_check(button, ctx)
 
     @miru.button(label="Cancel", emoji="\N{BLACK SQUARE FOR STOP}", style=hikari.ButtonStyle.DANGER, row=2)
     async def stop_button(self, button: miru.Button, ctx: miru.ViewContext) -> None:
-        if ctx.author.id == self.player.id and button.label is not None:
-            self.move = button.label.lower() 
-            self.stop()
+        self.button_check(button, ctx)
 
 
 class RPSAcceptView(miru.View):
@@ -53,21 +50,22 @@ class RPSAcceptView(miru.View):
         self.player = player
         super().__init__(*args, **kwargs)
 
+    def button_check(self, button: miru.Button, ctx: miru.Context):
+        if ctx.author.id == self.player.id and button.label is not None:
+            self.move = button.label.lower() 
+            self.stop()
+
     @miru.button(
         label="Accept", emoji="\N{WHITE HEAVY CHECK MARK}", style=hikari.ButtonStyle.SUCCESS
     )
     async def accept_button(self, button: miru.Button, ctx: miru.Context) -> None:
-        if ctx.author.id == self.player.id and button.label is not None:
-            self.option = button.label.lower() 
-            self.stop()
+        self.button_check(button, ctx)
 
     @miru.button(
         label="Decline", emoji="\N{NEGATIVE SQUARED CROSS MARK}", style=hikari.ButtonStyle.DANGER
     )
     async def decline_button(self, button: miru.Button, ctx: miru.Context) -> None:
-        if ctx.author.id == self.player.id and button.label is not None:
-            self.option = button.label.lower() 
-            self.stop()
+        self.button_check(button, ctx)
 
 
 class TriviaView(miru.View):
