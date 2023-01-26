@@ -255,9 +255,9 @@ async def rps(ctx: lightbulb.Context) -> None:
         else:
             await ctx.respond(f"{opponent.mention} took too long to answer.")
 
-    if ctx.options.player is None or ctx.options.player.id == ctx.bot.get_me().id:  # type: ignore
+    if ctx.options.opponent is None or ctx.options.opponent.id == ctx.bot.get_me().id:  # type: ignore
         await player_vs_bot()
-    elif ctx.options.player.id == ctx.author.id:
+    elif ctx.options.opponent.id == ctx.author.id:
         await ctx.respond("You can't play against yourself!")
     else:
         await player_vs_player()
