@@ -52,7 +52,7 @@ class RPSAcceptView(miru.View):
 
     def button_check(self, button: miru.Button, ctx: miru.Context):
         if ctx.author.id == self.player.id and button.label is not None:
-            self.move = button.label.lower() 
+            self.option = button.label.lower() 
             self.stop()
 
     @miru.button(
