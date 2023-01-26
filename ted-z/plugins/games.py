@@ -25,26 +25,26 @@ class RPSView(miru.View):
 
     @miru.button(label="Rock", emoji="\N{ROCK}", style=hikari.ButtonStyle.PRIMARY)
     async def rock_button(self, button: miru.Button, ctx: miru.Context) -> None:
-        if ctx.author.id == self.player.id:
-            self.move = "rock"
+        if ctx.author.id == self.player.id and button.label is not None:
+            self.move = button.label.lower() 
             self.stop()
 
     @miru.button(label="Paper", emoji="\N{SCROLL}", style=hikari.ButtonStyle.PRIMARY)
     async def paper_button(self, button: miru.Button, ctx: miru.Context) -> None:
-        if ctx.author.id == self.player.id:
-            self.move = "paper"
+        if ctx.author.id == self.player.id and button.label is not None:
+            self.move = button.label.lower() 
             self.stop()
 
     @miru.button(label="Scissors", emoji="\N{BLACK SCISSORS}", style=hikari.ButtonStyle.PRIMARY)
     async def scissors_button(self, button: miru.Button, ctx: miru.Context) -> None:
-        if ctx.author.id == self.player.id:
-            self.move = "scissors"
+        if ctx.author.id == self.player.id and button.label is not None:
+            self.move = button.label.lower() 
             self.stop()
 
-    @miru.button(emoji="\N{BLACK SQUARE FOR STOP}", style=hikari.ButtonStyle.DANGER, row=2)
+    @miru.button(label="Cancel", emoji="\N{BLACK SQUARE FOR STOP}", style=hikari.ButtonStyle.DANGER, row=2)
     async def stop_button(self, button: miru.Button, ctx: miru.ViewContext) -> None:
-        if ctx.author.id == self.player.id:
-            self.move = "cancel"
+        if ctx.author.id == self.player.id and button.label is not None:
+            self.move = button.label.lower() 
             self.stop()
 
 
@@ -57,16 +57,16 @@ class RPSAcceptView(miru.View):
         label="Accept", emoji="\N{WHITE HEAVY CHECK MARK}", style=hikari.ButtonStyle.SUCCESS
     )
     async def accept_button(self, button: miru.Button, ctx: miru.Context) -> None:
-        if ctx.author.id == self.player.id:
-            self.option = "accept"
+        if ctx.author.id == self.player.id and button.label is not None:
+            self.option = button.label.lower() 
             self.stop()
 
     @miru.button(
         label="Decline", emoji="\N{NEGATIVE SQUARED CROSS MARK}", style=hikari.ButtonStyle.DANGER
     )
     async def decline_button(self, button: miru.Button, ctx: miru.Context) -> None:
-        if ctx.author.id == self.player.id:
-            self.option = "deny"
+        if ctx.author.id == self.player.id and button.label is not None:
+            self.option = button.label.lower() 
             self.stop()
 
 
