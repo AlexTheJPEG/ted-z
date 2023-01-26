@@ -89,19 +89,21 @@ class TriviaView(miru.View):
     name="player",
     description="Who to play against (default: play against me!)",
     type=hikari.User,
-    default=None
+    default=None,
 )
-@lightbulb.command(name="rps", description="Play rock-paper-scissors", ephemeral=True)
+@lightbulb.command(name="rps", description="Play rock-paper-scissors")
 @lightbulb.implements(lightbulb.SlashCommand)
 async def rps(ctx: lightbulb.Context) -> None:
     async def player_vs_bot():
         while True:
             view = RPSView(timeout=60)
-            message = await ctx.respond("Pick a move!", components=view)
+            message = await ctx.respond(
+                f"{ctx.author.mention} Pick a move!", components=view, user_mentions=True
+            )
             await view.start(message)
             await view.wait()
             if hasattr(view, "move"):
-                game_string = f"Rock, paper, scissors, shoot!"
+                game_string = f"{ctx.author.mention} Rock, paper, scissors, shoot!"
                 game = await ctx.respond(game_string, user_mentions=True)
                 await asyncio.sleep(2)
 
