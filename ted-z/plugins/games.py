@@ -44,7 +44,7 @@ class RPSView(miru.View):
     @miru.button(emoji="\N{BLACK SQUARE FOR STOP}", style=hikari.ButtonStyle.DANGER, row=2)
     async def stop_button(self, button: miru.Button, ctx: miru.ViewContext) -> None:
         if ctx.author.id == self.player.id:
-            await ctx.respond("Cancelled.")
+            self.move = "cancel"
             self.stop()
 
 
@@ -125,7 +125,7 @@ async def rps(ctx: lightbulb.Context) -> None:
             )
             await view.start(message)
             await view.wait()
-            if hasattr(view, "move"):
+            if hasattr(view, "move") and view.move != "cancel":
                 game_string = f"{ctx.author.mention} Rock, paper, scissors, shoot!"
                 game = await ctx.respond(game_string, user_mentions=True)
                 await asyncio.sleep(2)
@@ -158,6 +158,10 @@ async def rps(ctx: lightbulb.Context) -> None:
 
                 await asyncio.sleep(1)
             else:
+                if hasattr(view, "move"):
+                    await ctx.respond("Cancelled.")
+                else:
+                    await ctx.respond("You took too long. Cancelling.")
                 break
 
     async def player_vs_player():
@@ -175,7 +179,33 @@ async def rps(ctx: lightbulb.Context) -> None:
         await accept_view.wait()
         if hasattr(accept_view, "option"):
             if accept_view.option == "accept":
-                await ctx.respond("accept")
+                player_one_view = RPSView(ctx.author, timeout=60)
+                player_one_message = await ctx.respond(
+                    f"{ctx.author.mention} Pick a move!", components=player_one_view, user_mentions=True
+                )
+                await player_one_view.start(player_one_message)
+                await player_one_view.wait()
+                if not hasattr(player_one_view, "move") or player_one_view.move == "cancel":
+                    if hasattr(player_one_view, "move"):
+                        await ctx.respond(f"{ctx.author.mention} ditched the match.")
+                    else:
+                        await ctx.respond(f"{ctx.author.mention} took too long.")
+                    return
+
+                player_two_view = RPSView(player, timeout=60)
+                player_two_message = await ctx.respond(
+                    f"{player.mention} Pick a move!", components=player_two_view, user_mentions=True
+                )
+                await player_two_view.start(player_two_message)
+                await player_two_view.wait()
+                if not hasattr(player_two_view, "move") or player_two_view.move == "cancel":
+                    if hasattr(player_two_view, "move"):
+                        await ctx.respond(f"{player.mention} ditched the match.")
+                    else:
+                        await ctx.respond(f"{player.mention} took too long.")
+                    return
+
+                await ctx.respond(f"{player_one_view.move} {player_two_view.move}")
             else:
                 await ctx.respond(f"{player.mention} has declined the match.")
         else:
