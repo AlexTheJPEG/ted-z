@@ -234,9 +234,8 @@ async def rps(ctx: lightbulb.Context) -> None:
                     game_string += (
                         f"\n\n{RPS_EMOTES[player_one_move]} {ctx.author.mention} chose"
                         f" {player_one_move}."
-                    )
-                    game_string += (
-                        f"\n{RPS_EMOTES[player_two_move]} {opponent.mention} chose {player_two_move}."
+                        f"\n{RPS_EMOTES[player_two_move]} {opponent.mention} chose"
+                        f" {player_two_move}."
                     )
                     await game.edit(game_string)
                     await asyncio.sleep(1)
