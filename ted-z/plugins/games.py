@@ -48,6 +48,24 @@ class RPSView(miru.View):
             self.stop()
 
 
+class RPSAcceptView(miru.View):
+    def __init__(self, player: hikari.User, *args, **kwargs) -> None:
+        self.player = player
+        super().__init__(*args, **kwargs)
+
+    @miru.button(label="Accept", emoji="\N{WHITE HEAVY CHECK MARK}", style=hikari.ButtonStyle.SUCCESS)
+    async def accept_button(self, button: miru.Button, ctx: miru.Context) -> None:
+        if ctx.author.id == self.player.id:
+            self.option = "accept"
+            self.stop()
+
+    @miru.button(label="Decline", emoji="\N{NEGATIVE SQUARED CROSS MARK}", style=hikari.ButtonStyle.DANGER)
+    async def decline_button(self, button: miru.Button, ctx: miru.Context) -> None:
+        if ctx.author.id == self.player.id:
+            self.option = "deny"
+            self.stop()
+
+
 class TriviaView(miru.View):
     def __init__(self, author, public, *args, **kwargs) -> None:
         self.author = author
@@ -144,13 +162,24 @@ async def rps(ctx: lightbulb.Context) -> None:
 
     async def player_vs_player():
         player = ctx.options.player
-        await ctx.respond(
+        accept_view = RPSAcceptView(player, timeout=60)
+        message = await ctx.respond(
             (
                 f"{player.mention}\n\n{ctx.author.mention} has challenged you to Rock-Paper-Scissors!"
-                " Do you accept?"
+                " Do you accept? You have 60 seconds before the request times out."
             ),
+            components=accept_view,
             user_mentions=True,
         )
+        await accept_view.start(message)
+        await accept_view.wait()
+        if hasattr(accept_view, "option"):
+            if accept_view.option == "accept":
+                await ctx.respond("accept")
+            else:
+                await ctx.respond(f"{player.mention} has declined the match.")
+        else:
+            await ctx.respond(f"{player.mention} took too long to answer.")
 
     if ctx.options.player is None or ctx.options.player.id == ctx.bot.get_me().id:  # type: ignore
         await player_vs_bot()
