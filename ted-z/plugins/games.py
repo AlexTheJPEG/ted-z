@@ -19,28 +19,33 @@ RPS_WINLOSS = {
 
 
 class RPSView(miru.View):
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, player: hikari.User, *args, **kwargs) -> None:
+        self.player = player
         super().__init__(*args, **kwargs)
 
     @miru.button(label="Rock", emoji="\N{ROCK}", style=hikari.ButtonStyle.PRIMARY)
     async def rock_button(self, button: miru.Button, ctx: miru.Context) -> None:
-        self.move = "rock"
-        self.stop()
+        if (ctx.author.id == self.player.id):
+            self.move = "rock"
+            self.stop()
 
     @miru.button(label="Paper", emoji="\N{SCROLL}", style=hikari.ButtonStyle.PRIMARY)
     async def paper_button(self, button: miru.Button, ctx: miru.Context) -> None:
-        self.move = "paper"
-        self.stop()
+        if (ctx.author.id == self.player.id):
+            self.move = "paper"
+            self.stop()
 
     @miru.button(label="Scissors", emoji="\N{BLACK SCISSORS}", style=hikari.ButtonStyle.PRIMARY)
     async def scissors_button(self, button: miru.Button, ctx: miru.Context) -> None:
-        self.move = "scissors"
-        self.stop()
+        if (ctx.author.id == self.player.id):
+            self.move = "scissors"
+            self.stop()
 
     @miru.button(emoji="\N{BLACK SQUARE FOR STOP}", style=hikari.ButtonStyle.DANGER, row=2)
     async def stop_button(self, button: miru.Button, ctx: miru.ViewContext) -> None:
-        await ctx.respond("Cancelled.")
-        self.stop()
+        if (ctx.author.id == self.player.id):
+            await ctx.respond("Cancelled.")
+            self.stop()
 
 
 class TriviaView(miru.View):
@@ -96,7 +101,7 @@ class TriviaView(miru.View):
 async def rps(ctx: lightbulb.Context) -> None:
     async def player_vs_bot():
         while True:
-            view = RPSView(timeout=60)
+            view = RPSView(ctx.author, timeout=60)
             message = await ctx.respond(
                 f"{ctx.author.mention} Pick a move!", components=view, user_mentions=True
             )
