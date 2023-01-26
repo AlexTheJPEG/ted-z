@@ -109,7 +109,7 @@ class TriviaView(miru.View):
 
 @plugin.command
 @lightbulb.option(
-    name="player",
+    name="opponent",
     description="Who to play against (default: play against me!)",
     type=hikari.User,
     default=None,
@@ -165,11 +165,11 @@ async def rps(ctx: lightbulb.Context) -> None:
                 break
 
     async def player_vs_player():
-        player = ctx.options.player
-        accept_view = RPSAcceptView(player, timeout=60)
+        opponent = ctx.options.opponent
+        accept_view = RPSAcceptView(opponent, timeout=60)
         message = await ctx.respond(
             (
-                f"{player.mention}\n\n{ctx.author.mention} has challenged you to Rock-Paper-Scissors!"
+                f"{opponent.mention}\n\n{ctx.author.mention} has challenged you to Rock-Paper-Scissors!"
                 " Do you accept? You have 60 seconds before the request times out."
             ),
             components=accept_view,
@@ -192,20 +192,20 @@ async def rps(ctx: lightbulb.Context) -> None:
                         await ctx.respond(f"{ctx.author.mention} took too long.")
                     return
 
-                player_two_view = RPSView(player, timeout=60)
+                player_two_view = RPSView(opponent, timeout=60)
                 player_two_message = await ctx.respond(
-                    f"{player.mention} Pick a move!", components=player_two_view, user_mentions=True
+                    f"{opponent.mention} Pick a move!", components=player_two_view, user_mentions=True
                 )
                 await player_two_view.start(player_two_message)
                 await player_two_view.wait()
                 if not hasattr(player_two_view, "move") or player_two_view.move == "cancel":
                     if hasattr(player_two_view, "move"):
-                        await ctx.respond(f"{player.mention} ditched the match.")
+                        await ctx.respond(f"{opponent.mention} ditched the match.")
                     else:
-                        await ctx.respond(f"{player.mention} took too long.")
+                        await ctx.respond(f"{opponent.mention} took too long.")
                     return
 
-                game_string = f"{ctx.author.mention} {player.mention}\nRock, paper, scissors, shoot!"
+                game_string = f"{ctx.author.mention} {opponent.mention}\nRock, paper, scissors, shoot!"
                 game = await ctx.respond(game_string, user_mentions=True)
                 await asyncio.sleep(2)
 
@@ -213,7 +213,7 @@ async def rps(ctx: lightbulb.Context) -> None:
                 player_two_move = player_two_view.move 
 
                 game_string += f"\n\n{RPS_EMOTES[player_one_move]} {ctx.author.mention} chose {player_one_move}."
-                game_string += f"\n{RPS_EMOTES[player_two_move]} {player.mention} chose {player_two_move}."
+                game_string += f"\n{RPS_EMOTES[player_two_move]} {opponent.mention} chose {player_two_move}."
                 await game.edit(game_string)
                 await asyncio.sleep(1)
 
@@ -221,7 +221,7 @@ async def rps(ctx: lightbulb.Context) -> None:
                 player_two_loses = RPS_WINLOSS[player_two_move][1]
 
                 if player_one_move == player_two_wins:
-                    game_string += f"\n\n**{player.mention} wins!**"
+                    game_string += f"\n\n**{opponent.mention} wins!**"
                 elif player_one_move == player_two_loses:
                     game_string += f"\n\n**{ctx.author.mention} wins!**"
                 else:
@@ -229,9 +229,9 @@ async def rps(ctx: lightbulb.Context) -> None:
 
                 await game.edit(game_string)
             else:
-                await ctx.respond(f"{player.mention} has declined the match.")
+                await ctx.respond(f"{opponent.mention} has declined the match.")
         else:
-            await ctx.respond(f"{player.mention} took too long to answer.")
+            await ctx.respond(f"{opponent.mention} took too long to answer.")
 
     if ctx.options.player is None or ctx.options.player.id == ctx.bot.get_me().id:  # type: ignore
         await player_vs_bot()
