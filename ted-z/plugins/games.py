@@ -53,13 +53,17 @@ class RPSAcceptView(miru.View):
         self.player = player
         super().__init__(*args, **kwargs)
 
-    @miru.button(label="Accept", emoji="\N{WHITE HEAVY CHECK MARK}", style=hikari.ButtonStyle.SUCCESS)
+    @miru.button(
+        label="Accept", emoji="\N{WHITE HEAVY CHECK MARK}", style=hikari.ButtonStyle.SUCCESS
+    )
     async def accept_button(self, button: miru.Button, ctx: miru.Context) -> None:
         if ctx.author.id == self.player.id:
             self.option = "accept"
             self.stop()
 
-    @miru.button(label="Decline", emoji="\N{NEGATIVE SQUARED CROSS MARK}", style=hikari.ButtonStyle.DANGER)
+    @miru.button(
+        label="Decline", emoji="\N{NEGATIVE SQUARED CROSS MARK}", style=hikari.ButtonStyle.DANGER
+    )
     async def decline_button(self, button: miru.Button, ctx: miru.Context) -> None:
         if ctx.author.id == self.player.id:
             self.option = "deny"
@@ -169,8 +173,9 @@ async def rps(ctx: lightbulb.Context) -> None:
         accept_view = RPSAcceptView(opponent, timeout=60)
         message = await ctx.respond(
             (
-                f"{opponent.mention}\n\n{ctx.author.mention} has challenged you to Rock-Paper-Scissors!"
-                " Do you accept? You have 60 seconds before the request times out."
+                f"{opponent.mention}\n\n{ctx.author.mention} has challenged you to"
+                " Rock-Paper-Scissors! Do you accept? You have 60 seconds before the request"
+                " times out."
             ),
             components=accept_view,
             user_mentions=True,
@@ -181,7 +186,9 @@ async def rps(ctx: lightbulb.Context) -> None:
             if accept_view.option == "accept":
                 player_one_view = RPSView(ctx.author, timeout=60)
                 player_one_message = await ctx.respond(
-                    f"{ctx.author.mention} Pick a move!", components=player_one_view, user_mentions=True
+                    f"{ctx.author.mention} Pick a move!",
+                    components=player_one_view,
+                    user_mentions=True,
                 )
                 await player_one_view.start(player_one_message)
                 await player_one_view.wait()
@@ -194,7 +201,9 @@ async def rps(ctx: lightbulb.Context) -> None:
 
                 player_two_view = RPSView(opponent, timeout=60)
                 player_two_message = await ctx.respond(
-                    f"{opponent.mention} Pick a move!", components=player_two_view, user_mentions=True
+                    f"{opponent.mention} Pick a move!",
+                    components=player_two_view,
+                    user_mentions=True,
                 )
                 await player_two_view.start(player_two_message)
                 await player_two_view.wait()
@@ -205,15 +214,22 @@ async def rps(ctx: lightbulb.Context) -> None:
                         await ctx.respond(f"{opponent.mention} took too long.")
                     return
 
-                game_string = f"{ctx.author.mention} {opponent.mention}\nRock, paper, scissors, shoot!"
+                game_string = (
+                    f"{ctx.author.mention} {opponent.mention}\nRock, paper, scissors, shoot!"
+                )
                 game = await ctx.respond(game_string, user_mentions=True)
                 await asyncio.sleep(2)
 
                 player_one_move = player_one_view.move
-                player_two_move = player_two_view.move 
+                player_two_move = player_two_view.move
 
-                game_string += f"\n\n{RPS_EMOTES[player_one_move]} {ctx.author.mention} chose {player_one_move}."
-                game_string += f"\n{RPS_EMOTES[player_two_move]} {opponent.mention} chose {player_two_move}."
+                game_string += (
+                    f"\n\n{RPS_EMOTES[player_one_move]} {ctx.author.mention} chose"
+                    f" {player_one_move}."
+                )
+                game_string += (
+                    f"\n{RPS_EMOTES[player_two_move]} {opponent.mention} chose {player_two_move}."
+                )
                 await game.edit(game_string)
                 await asyncio.sleep(1)
 
