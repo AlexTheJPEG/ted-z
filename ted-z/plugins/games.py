@@ -118,6 +118,12 @@ class TriviaView(miru.View):
     type=hikari.User,
     default=None,
 )
+@lightbulb.option(
+    name="continue_after_draw",
+    description="Automatically start another match after a draw? (default: true)",
+    type=bool,
+    default=True,
+)
 @lightbulb.command(name="rps", description="Play Rock-Paper-Scissors")
 @lightbulb.implements(lightbulb.SlashCommand)
 async def rps(ctx: lightbulb.Context) -> None:
@@ -155,11 +161,12 @@ async def rps(ctx: lightbulb.Context) -> None:
                 else:
                     game_string += f"\n\n**It's a draw.**"
 
-                await game.edit(game_string)
-
-                if not game_string.endswith("draw.**"):
+                if not ctx.options.continue_after_draw or not game_string.endswith("draw.**"):
+                    await game.edit(game_string)
                     break
 
+                game_string += " Running it back."
+                await game.edit(game_string)
                 await asyncio.sleep(1)
             else:
                 if hasattr(view, "move"):
@@ -244,11 +251,12 @@ async def rps(ctx: lightbulb.Context) -> None:
                     else:
                         game_string += f"\n\n**It's a draw.**"
 
-                    await game.edit(game_string)
-
-                    if not game_string.endswith("draw.**"):
+                    if not ctx.options.continue_after_draw or not game_string.endswith("draw.**"):
+                        await game.edit(game_string)
                         break
 
+                    game_string += " Running it back."
+                    await game.edit(game_string)
                     await asyncio.sleep(1)
             else:
                 await ctx.respond(f"{opponent.mention} has declined the match.")
