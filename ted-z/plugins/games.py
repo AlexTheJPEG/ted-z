@@ -205,7 +205,29 @@ async def rps(ctx: lightbulb.Context) -> None:
                         await ctx.respond(f"{player.mention} took too long.")
                     return
 
-                await ctx.respond(f"{player_one_view.move} {player_two_view.move}")
+                game_string = f"{ctx.author.mention} {player.mention}\nRock, paper, scissors, shoot!"
+                game = await ctx.respond(game_string, user_mentions=True)
+                await asyncio.sleep(2)
+
+                player_one_move = player_one_view.move
+                player_two_move = player_two_view.move 
+
+                game_string += f"\n\n{RPS_EMOTES[player_one_move]} {ctx.author.mention} chose {player_one_move}."
+                game_string += f"\n{RPS_EMOTES[player_two_move]} {player.mention} chose {player_two_move}."
+                await game.edit(game_string)
+                await asyncio.sleep(1)
+
+                player_two_wins = RPS_WINLOSS[player_two_move][0]
+                player_two_loses = RPS_WINLOSS[player_two_move][1]
+
+                if player_one_move == player_two_wins:
+                    game_string += f"\n\n**{player.mention} wins!**"
+                elif player_one_move == player_two_loses:
+                    game_string += f"\n\n**{ctx.author.mention} wins!**"
+                else:
+                    game_string += f"\n\n**It's a draw.**"
+
+                await game.edit(game_string)
             else:
                 await ctx.respond(f"{player.mention} has declined the match.")
         else:
