@@ -25,7 +25,7 @@ class RPSView(miru.View):
 
     def button_check(self, button: miru.Button, ctx: miru.Context):
         if ctx.author.id == self.player.id and button.label is not None:
-            self.move = button.label.lower() 
+            self.move = button.label.lower()
             self.stop()
 
     @miru.button(label="Rock", emoji="\N{ROCK}", style=hikari.ButtonStyle.PRIMARY)
@@ -40,7 +40,9 @@ class RPSView(miru.View):
     async def scissors_button(self, button: miru.Button, ctx: miru.Context) -> None:
         self.button_check(button, ctx)
 
-    @miru.button(label="Cancel", emoji="\N{BLACK SQUARE FOR STOP}", style=hikari.ButtonStyle.DANGER, row=2)
+    @miru.button(
+        label="Cancel", emoji="\N{BLACK SQUARE FOR STOP}", style=hikari.ButtonStyle.DANGER, row=2
+    )
     async def stop_button(self, button: miru.Button, ctx: miru.ViewContext) -> None:
         self.button_check(button, ctx)
 
@@ -52,7 +54,7 @@ class RPSAcceptView(miru.View):
 
     def button_check(self, button: miru.Button, ctx: miru.Context):
         if ctx.author.id == self.player.id and button.label is not None:
-            self.option = button.label.lower() 
+            self.option = button.label.lower()
             self.stop()
 
     @miru.button(
@@ -82,7 +84,7 @@ class TriviaView(miru.View):
 
     def cancel_button_check(self, button: miru.Button, ctx: miru.Context):
         if ctx.author.id == self.author.id and button.label is not None:
-            self.answer = button.label.lower() 
+            self.answer = button.label.lower()
             self.stop()
 
     @miru.button(label="A", style=hikari.ButtonStyle.PRIMARY)
@@ -101,7 +103,9 @@ class TriviaView(miru.View):
     async def d_button(self, button: miru.Button, ctx: miru.Context) -> None:
         self.button_check(button, ctx)
 
-    @miru.button(label="Cancel", emoji="\N{BLACK SQUARE FOR STOP}", style=hikari.ButtonStyle.DANGER, row=2)
+    @miru.button(
+        label="Cancel", emoji="\N{BLACK SQUARE FOR STOP}", style=hikari.ButtonStyle.DANGER, row=2
+    )
     async def stop_button(self, button: miru.Button, ctx: miru.ViewContext) -> None:
         self.cancel_button_check(button, ctx)
 
@@ -160,7 +164,7 @@ async def rps(ctx: lightbulb.Context) -> None:
                 if not ctx.options.continue_after_draw or not game_string.endswith("draw.**"):
                     await game.edit(game_string)
                     break
-                
+
                 game_string += " Running it back."
                 await game.edit(game_string)
                 await asyncio.sleep(1)
@@ -174,11 +178,12 @@ async def rps(ctx: lightbulb.Context) -> None:
     async def player_vs_player_accept():
         opponent = ctx.options.opponent
         accept_view = RPSAcceptView(opponent, timeout=60)
+        continue_after_draw_string = " (continue after draw turned off)"
         message = await ctx.respond(
             (
                 f"{opponent.mention}\n\n{ctx.author.mention} has challenged you to"
-                " Rock-Paper-Scissors! Do you accept? You have 60 seconds before the request"
-                " times out."
+                f" Rock-Paper-Scissors{continue_after_draw_string if not ctx.options.continue_after_draw else ''}!"
+                " Do you accept? You have 60 seconds before the request times out."
             ),
             components=accept_view,
             user_mentions=True,
@@ -192,7 +197,6 @@ async def rps(ctx: lightbulb.Context) -> None:
                 await ctx.respond(f"{opponent.mention} has declined the match.")
         else:
             await ctx.respond(f"{opponent.mention} took too long to answer.")
-
 
     async def player_vs_player(opponent: hikari.User):
         while True:
@@ -228,15 +232,13 @@ async def rps(ctx: lightbulb.Context) -> None:
                     await ctx.respond(f"{opponent.mention} took too long.")
                 break
 
-            game_string = (
-                f"{ctx.author.mention} {opponent.mention}\nRock, paper, scissors, shoot!"
-            )
+            game_string = f"{ctx.author.mention} {opponent.mention}\nRock, paper, scissors, shoot!"
             game = await ctx.respond(game_string, user_mentions=True)
             await asyncio.sleep(2)
 
             player_one_move = player_one_view.move
             player_two_move = player_two_view.move
-            
+
             # Add both player moves at the same time instead of waiting per player
             game_string += (
                 f"\n\n{RPS_EMOTES[player_one_move]} {ctx.author.mention} chose"
@@ -320,7 +322,9 @@ async def trivia(ctx: lightbulb.Context) -> None:
             answers_list[answers.index(correct_answer)] += " :white_check_mark:"
 
             if answers_with_letters[view.answer] == correct_answer:
-                await ctx.respond(f"{view.who_clicked.mention} That is correct!", user_mentions=True)
+                await ctx.respond(
+                    f"{view.who_clicked.mention} That is correct!", user_mentions=True
+                )
             else:
                 await ctx.respond(
                     (
