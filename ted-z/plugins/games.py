@@ -25,25 +25,25 @@ class RPSView(miru.View):
 
     @miru.button(label="Rock", emoji="\N{ROCK}", style=hikari.ButtonStyle.PRIMARY)
     async def rock_button(self, button: miru.Button, ctx: miru.Context) -> None:
-        if (ctx.author.id == self.player.id):
+        if ctx.author.id == self.player.id:
             self.move = "rock"
             self.stop()
 
     @miru.button(label="Paper", emoji="\N{SCROLL}", style=hikari.ButtonStyle.PRIMARY)
     async def paper_button(self, button: miru.Button, ctx: miru.Context) -> None:
-        if (ctx.author.id == self.player.id):
+        if ctx.author.id == self.player.id:
             self.move = "paper"
             self.stop()
 
     @miru.button(label="Scissors", emoji="\N{BLACK SCISSORS}", style=hikari.ButtonStyle.PRIMARY)
     async def scissors_button(self, button: miru.Button, ctx: miru.Context) -> None:
-        if (ctx.author.id == self.player.id):
+        if ctx.author.id == self.player.id:
             self.move = "scissors"
             self.stop()
 
     @miru.button(emoji="\N{BLACK SQUARE FOR STOP}", style=hikari.ButtonStyle.DANGER, row=2)
     async def stop_button(self, button: miru.Button, ctx: miru.ViewContext) -> None:
-        if (ctx.author.id == self.player.id):
+        if ctx.author.id == self.player.id:
             await ctx.respond("Cancelled.")
             self.stop()
 
@@ -142,12 +142,22 @@ async def rps(ctx: lightbulb.Context) -> None:
             else:
                 break
 
+    async def player_vs_player():
+        player = ctx.options.player
+        await ctx.respond(
+            (
+                f"{player.mention}\n\n{ctx.author.mention} has challenged you to Rock-Paper-Scissors!"
+                " Do you accept?"
+            ),
+            user_mentions=True,
+        )
+
     if ctx.options.player is None or ctx.options.player.id == ctx.bot.get_me().id:  # type: ignore
         await player_vs_bot()
     elif ctx.options.player.id == ctx.author.id:
         await ctx.respond("You can't play against yourself!")
     else:
-        await ctx.respond("guh")
+        await player_vs_player()
 
 
 @plugin.command
