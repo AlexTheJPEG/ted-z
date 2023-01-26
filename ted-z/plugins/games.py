@@ -74,39 +74,36 @@ class TriviaView(miru.View):
         self.public = public
         super().__init__(*args, **kwargs)
 
-    @miru.button(label="A", style=hikari.ButtonStyle.PRIMARY)
-    async def a_button(self, button: miru.Button, ctx: miru.Context) -> None:
+    def button_check(self, button: miru.Button, ctx: miru.Context):
         if (self.public or ctx.author.id == self.author.id) and button.label is not None:
             self.answer = button.label.lower()
             self.who_clicked = ctx.user
             self.stop()
+
+    def cancel_button_check(self, button: miru.Button, ctx: miru.Context):
+        if ctx.author.id == self.author.id and button.label is not None:
+            self.answer = button.label.lower() 
+            self.stop()
+
+    @miru.button(label="A", style=hikari.ButtonStyle.PRIMARY)
+    async def a_button(self, button: miru.Button, ctx: miru.Context) -> None:
+        self.button_check(button, ctx)
 
     @miru.button(label="B", style=hikari.ButtonStyle.PRIMARY)
     async def b_button(self, button: miru.Button, ctx: miru.Context) -> None:
-        if (self.public or ctx.author.id == self.author.id) and button.label is not None:
-            self.answer = button.label.lower()
-            self.who_clicked = ctx.user
-            self.stop()
+        self.button_check(button, ctx)
 
     @miru.button(label="C", style=hikari.ButtonStyle.PRIMARY)
     async def c_button(self, button: miru.Button, ctx: miru.Context) -> None:
-        if (self.public or ctx.author.id == self.author.id) and button.label is not None:
-            self.answer = button.label.lower()
-            self.who_clicked = ctx.user
-            self.stop()
+        self.button_check(button, ctx)
 
     @miru.button(label="D", style=hikari.ButtonStyle.PRIMARY)
     async def d_button(self, button: miru.Button, ctx: miru.Context) -> None:
-        if (self.public or ctx.author.id == self.author.id) and button.label is not None:
-            self.answer = button.label.lower()
-            self.who_clicked = ctx.user
-            self.stop()
+        self.button_check(button, ctx)
 
-    @miru.button(emoji="\N{BLACK SQUARE FOR STOP}", style=hikari.ButtonStyle.DANGER, row=2)
+    @miru.button(label="Cancel", emoji="\N{BLACK SQUARE FOR STOP}", style=hikari.ButtonStyle.DANGER, row=2)
     async def stop_button(self, button: miru.Button, ctx: miru.ViewContext) -> None:
-        if ctx.author.id == self.author.id:
-            await ctx.respond("Cancelled.")
-            self.stop()
+        self.cancel_button_check(button, ctx)
 
 
 @plugin.command
@@ -316,25 +313,30 @@ async def trivia(ctx: lightbulb.Context) -> None:
     await view.wait()
 
     if hasattr(view, "answer"):
-        # Indicate the right answer with a check mark
-        answers_list[answers.index(correct_answer)] += " :white_check_mark:"
+        if view.answer != "cancel":
+            # Indicate the right answer with a check mark
+            answers_list[answers.index(correct_answer)] += " :white_check_mark:"
 
-        if answers_with_letters[view.answer] == correct_answer:
-            await ctx.respond(f"{view.who_clicked.mention} That is correct!", user_mentions=True)
+            if answers_with_letters[view.answer] == correct_answer:
+                await ctx.respond(f"{view.who_clicked.mention} That is correct!", user_mentions=True)
+            else:
+                await ctx.respond(
+                    (
+                        f"{view.who_clicked.mention} That is incorrect. The answer was:"
+                        f" :regional_indicator_{correct_answer_letter}: {correct_answer}."
+                    ),
+                    user_mentions=True,
+                )
+                # Mark the user's answer with an X
+                answers_list[answers.index(answers_with_letters[view.answer])] += " :x:"
+
+            answers_string = "\n".join(answers_list)
+            trivia_string = [f"**Category: {category}**", question, answers_string]
+            await message.edit("\n\n".join(trivia_string))
         else:
-            await ctx.respond(
-                (
-                    f"{view.who_clicked.mention} That is incorrect. The answer was:"
-                    f" :regional_indicator_{correct_answer_letter}: {correct_answer}."
-                ),
-                user_mentions=True,
-            )
-            # Mark the user's answer with an X
-            answers_list[answers.index(answers_with_letters[view.answer])] += " :x:"
-
-        answers_string = "\n".join(answers_list)
-        trivia_string = [f"**Category: {category}**", question, answers_string]
-        await message.edit("\n\n".join(trivia_string))
+            await ctx.respond("Cancelled.")
+    else:
+        await ctx.respond("You took too long to answer. Cancelling.")
 
 
 def load(bot: lightbulb.BotApp) -> None:
