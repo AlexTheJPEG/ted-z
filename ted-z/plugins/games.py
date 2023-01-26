@@ -306,6 +306,8 @@ async def trivia(ctx: lightbulb.Context) -> None:
     answers_list = [f":regional_indicator_{k}: {v}" for k, v in answers_with_letters.items()]
     answers_string = "\n".join(answers_list)
     trivia_string = [f"**Category: {category}**", question, answers_string]
+    if ctx.options.public:
+        trivia_string[0] += "\n(Anyone can answer this!)"
 
     view = TriviaView(ctx.author, ctx.options.public, timeout=60)
     message = await ctx.respond("\n\n".join(trivia_string), components=view)
@@ -332,6 +334,8 @@ async def trivia(ctx: lightbulb.Context) -> None:
 
             answers_string = "\n".join(answers_list)
             trivia_string = [f"**Category: {category}**", question, answers_string]
+            if ctx.options.public:
+                trivia_string[0] += "\n(Anyone can answer this!)"
             await message.edit("\n\n".join(trivia_string))
         else:
             await ctx.respond("Cancelled.")
