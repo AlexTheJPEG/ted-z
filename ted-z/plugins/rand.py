@@ -17,6 +17,7 @@ plugin = lightbulb.Plugin("rand")
 async def eight_ball(ctx: lightbulb.Context) -> None:
     response = random.choice(EB_RESPONSES)
     question = ctx.options.question
+
     await ctx.respond(f':speech_balloon: "{question}"\n\n:8ball: {response}')
 
 
