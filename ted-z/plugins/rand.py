@@ -55,9 +55,9 @@ async def roll(ctx: lightbulb.Context) -> None:
 @lightbulb.implements(lightbulb.SlashCommand)
 async def coin(ctx: lightbulb.Context) -> None:
     if random.getrandbits(1):
-        await ctx.respond(f":coin: It's heads.")
+        await ctx.respond(":coin: It's heads.")
     else:
-        await ctx.respond(f":coin: It's tails.")
+        await ctx.respond(":coin: It's tails.")
 
 
 @plugin.command

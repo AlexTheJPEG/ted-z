@@ -224,7 +224,7 @@ async def person(ctx: lightbulb.Context):
     buffer = BytesIO()
     image.save(buffer, format="PNG")
 
-    await ctx.respond(attachment=hikari.Bytes(buffer.getvalue(), f"person.png"))
+    await ctx.respond(attachment=hikari.Bytes(buffer.getvalue(), "person.png"))
 
 
 def load(bot: lightbulb.BotApp) -> None:

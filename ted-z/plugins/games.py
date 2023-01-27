@@ -155,11 +155,11 @@ async def rps(ctx: lightbulb.Context) -> None:
                 bot_loses = RPS_WINLOSS[bot_move][1]
 
                 if player_move == bot_wins:
-                    game_string += f"\n\n**I win!**"
+                    game_string += "\n\n**I win!**"
                 elif player_move == bot_loses:
-                    game_string += f"\n\n**You win.**"
+                    game_string += "\n\n**You win.**"
                 else:
-                    game_string += f"\n\n**It's a draw.**"
+                    game_string += "\n\n**It's a draw.**"
 
                 if not ctx.options.continue_after_draw or not game_string.endswith("draw.**"):
                     await game.edit(game_string)
@@ -178,11 +178,15 @@ async def rps(ctx: lightbulb.Context) -> None:
     async def player_vs_player_accept():
         opponent = ctx.options.opponent
         accept_view = RPSAcceptView(opponent, timeout=60)
-        continue_after_draw_string = " (continue after draw turned off)"
+
+        continue_after_draw_string = ""
+        if ctx.options.continue_after_draw:
+            continue_after_draw_string = " (continue after draw turned off)"
+
         message = await ctx.respond(
             (
                 f"{opponent.mention}\n\n{ctx.author.mention} has challenged you to"
-                f" Rock-Paper-Scissors{continue_after_draw_string if not ctx.options.continue_after_draw else ''}!"
+                f" Rock-Paper-Scissors{continue_after_draw_string}!"
                 " Do you accept? You have 60 seconds before the request times out."
             ),
             components=accept_view,
@@ -258,7 +262,7 @@ async def rps(ctx: lightbulb.Context) -> None:
             elif player_one_move == player_two_loses:
                 game_string += f"\n\n**{ctx.author.mention} wins!**"
             else:
-                game_string += f"\n\n**It's a draw.**"
+                game_string += "\n\n**It's a draw.**"
 
             if not ctx.options.continue_after_draw or not game_string.endswith("draw.**"):
                 await game.edit(game_string)
@@ -268,9 +272,12 @@ async def rps(ctx: lightbulb.Context) -> None:
             await game.edit(game_string)
             await asyncio.sleep(1)
 
-    if ctx.options.opponent is None or ctx.options.opponent.id == ctx.bot.get_me().id:  # type: ignore
+    opponent = ctx.options.opponent
+    if opponent is None or (
+        (bot_user := ctx.bot.get_me()) is not None and opponent.id == bot_user.id
+    ):
         await player_vs_bot()
-    elif ctx.options.opponent.id == ctx.author.id:
+    elif opponent.id == ctx.author.id:
         await ctx.respond("You can't play against yourself!")
     else:
         await player_vs_player_accept()
