@@ -1,5 +1,13 @@
 {
+    "[python]": {
+        "editor.formatOnSave": true,
+        "editor.codeActionsOnSave": {
+            "source.fixAll": true,
+            "source.organizeImports": true
+        }
+    },
+    "ruff.organizeImports": false,
+    "ruff.importStrategy": "fromEnvironment",
     "python.analysis.typeCheckingMode": "basic",
-    "python.formatting.provider": "black",
-    "editor.formatOnSave": true
+    "python.formatting.provider": "black"
 }
