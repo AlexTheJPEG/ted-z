@@ -4,7 +4,7 @@ import aiohttp
 import hikari
 import lightbulb
 
-from ..utils.opening import load_bot_settings, open_file
+from ..utils.opening import open_file
 from ..utils.web import HEADERS
 
 SLAPS = open_file("slaps.txt")
