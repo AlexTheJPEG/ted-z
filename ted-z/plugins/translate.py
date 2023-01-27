@@ -110,15 +110,16 @@ async def badtranslate(ctx: lightbulb.Context) -> None:
 
             current_src = language
 
-            # TODO: Make a progress bar
             if (index + 1) % 2 == 0:
-                await message.edit(
-                    f"{badtranslate_string} ({index + 1}/{ctx.options.iterations} complete)"
-                )
+                ratio = (index + 1) / ctx.options.iterations
+                percentage = int(ratio * 100)
+                blocks = int(ratio * 10)
 
-        await message.edit(
-            f"{badtranslate_string} ({ctx.options.iterations}/{ctx.options.iterations} complete)"
-        )
+                progress_bar = ":green_square:" * blocks + ":white_large_square:" * (10 - blocks)
+
+                await message.edit(f"{badtranslate_string}\n\n{progress_bar} ({percentage}%)")
+
+        await message.edit(f"{badtranslate_string}\n\n{':green_square:' * 10} (100%)")
 
         translated_phrase = LT_API.translate(translated_phrase, current_src, source)
 
