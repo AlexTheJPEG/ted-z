@@ -357,6 +357,33 @@ async def trivia(ctx: lightbulb.Context) -> None:
         await ctx.respond("You took too long to answer. Cancelling.")
 
 
+@plugin.command
+@lightbulb.option(
+    name="max_number",
+    description="I'll only think of a number from 1 to (max). (default: 100)",
+    type=int,
+    default=100,
+)
+@lightbulb.command(name="guessinggame", description="Try to guess what number I'm thinking of")
+@lightbulb.implements(lightbulb.SlashCommand)
+async def guessinggame(ctx: lightbulb.Context) -> None:
+    max_ = ctx.options.max_number
+    number = random.randint(1, max_)
+
+    await ctx.respond(f"I'm thinking of a number between 1 and {max_}...try to guess what it is!")
+
+    guess = None
+    while guess is None or not guess.isdigit():
+        response = await ctx.bot.wait_for(
+            hikari.GuildMessageCreateEvent,
+            timeout=60,
+            predicate=lambda e: e.message.author.id == ctx.author.id,
+        )
+        guess = response.message.content
+
+    await ctx.respond(guess)
+
+
 def load(bot: lightbulb.BotApp) -> None:
     bot.add_plugin(plugin)
 
