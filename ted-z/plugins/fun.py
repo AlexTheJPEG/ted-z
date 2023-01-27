@@ -42,7 +42,7 @@ async def slap(ctx: lightbulb.Context) -> None:
     await ctx.respond(slap_message, user_mentions=True)
 
 
-def create_ground_string(groundee, reason):
+def create_ground_string(groundee: str, reason: str) -> str:
     time = random.randrange(10**50, 10**51)
     oh = "OH" * random.randint(15, 30)
     grounded = ("GROUNDED " * random.randint(3, 9)).rstrip()

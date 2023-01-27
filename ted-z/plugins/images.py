@@ -1,7 +1,7 @@
-import os
 import random
 import re
 from io import BytesIO
+from pathlib import PurePosixPath
 
 import aiohttp
 import hikari
@@ -43,7 +43,7 @@ async def jpegify(ctx: lightbulb.Context) -> None:
         buffer = BytesIO()
         image.save(buffer, format="JPEG", optimize=True, quality=0)
 
-        filename, _ = os.path.splitext(attachment.filename)
+        filename = PurePosixPath(attachment.filename).stem
         await ctx.respond(attachment=hikari.Bytes(buffer.getvalue(), f"{filename}-jpegify.jpg"))
     else:
         await ctx.respond("Looks like you didn't send an image! Come back with one and try again.")
@@ -83,7 +83,8 @@ async def invert(ctx: lightbulb.Context) -> None:
         buffer = BytesIO()
         inverted_image.save(buffer, format=format)
 
-        filename, extension = os.path.splitext(attachment.filename)
+        file = PurePosixPath(attachment.filename)
+        filename, extension = file.stem, file.suffix
         await ctx.respond(
             attachment=hikari.Bytes(buffer.getvalue(), f"{filename}-inverted.{extension}")
         )
@@ -150,7 +151,7 @@ async def color(ctx: lightbulb.Context) -> None:
 @plugin.command
 @lightbulb.command(name="apod", description="Get NASA's Astronomy Picture of the Day")
 @lightbulb.implements(lightbulb.SlashCommand)
-async def apod(ctx: lightbulb.Context):
+async def apod(ctx: lightbulb.Context) -> None:
     try:
         nasa_api = load_bot_settings()["api"]["nasa"]
         async with aiohttp.ClientSession() as session:
@@ -174,7 +175,7 @@ async def apod(ctx: lightbulb.Context):
 @plugin.command
 @lightbulb.command(name="yugioh", description="Get a random Yu-Gi-Oh! card")
 @lightbulb.implements(lightbulb.SlashCommand)
-async def yugioh(ctx: lightbulb.Context):
+async def yugioh(ctx: lightbulb.Context) -> None:
     # https://ygoprodeck.com/api-guide/
     async with aiohttp.ClientSession() as session:
         async with session.get(
@@ -190,7 +191,7 @@ async def yugioh(ctx: lightbulb.Context):
 @plugin.command
 @lightbulb.command(name="xkcd", description="Get a random XKCD comic")
 @lightbulb.implements(lightbulb.SlashCommand)
-async def xkcd(ctx: lightbulb.Context):
+async def xkcd(ctx: lightbulb.Context) -> None:
     async with aiohttp.ClientSession() as session:
         async with session.get("https://c.xkcd.com/random/comic/", headers=HEADERS) as response:
             website = BeautifulSoup(await response.text(), "html.parser")
@@ -214,7 +215,7 @@ async def xkcd(ctx: lightbulb.Context):
 @plugin.command
 @lightbulb.command(name="person", description="Generate a random person that does not exist")
 @lightbulb.implements(lightbulb.SlashCommand)
-async def person(ctx: lightbulb.Context):
+async def person(ctx: lightbulb.Context) -> None:
     async with aiohttp.ClientSession() as session:
         async with session.get(
             "https://thispersondoesnotexist.com/image", headers=HEADERS

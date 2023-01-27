@@ -23,7 +23,7 @@ class RPSView(miru.View):
         self.player = player
         super().__init__(*args, **kwargs)
 
-    def button_check(self, button: miru.Button, ctx: miru.Context):
+    def button_check(self, button: miru.Button, ctx: miru.Context) -> None:
         if ctx.author.id == self.player.id and button.label is not None:
             self.move = button.label.lower()
             self.stop()
@@ -52,7 +52,7 @@ class RPSAcceptView(miru.View):
         self.player = player
         super().__init__(*args, **kwargs)
 
-    def button_check(self, button: miru.Button, ctx: miru.Context):
+    def button_check(self, button: miru.Button, ctx: miru.Context) -> None:
         if ctx.author.id == self.player.id and button.label is not None:
             self.option = button.label.lower()
             self.stop()
@@ -71,18 +71,18 @@ class RPSAcceptView(miru.View):
 
 
 class TriviaView(miru.View):
-    def __init__(self, author, public, *args, **kwargs) -> None:
+    def __init__(self, author: hikari.User, public: bool, *args, **kwargs) -> None:
         self.author = author
         self.public = public
         super().__init__(*args, **kwargs)
 
-    def button_check(self, button: miru.Button, ctx: miru.Context):
+    def button_check(self, button: miru.Button, ctx: miru.Context) -> None:
         if (self.public or ctx.author.id == self.author.id) and button.label is not None:
             self.answer = button.label.lower()
             self.who_clicked = ctx.user
             self.stop()
 
-    def cancel_button_check(self, button: miru.Button, ctx: miru.Context):
+    def cancel_button_check(self, button: miru.Button, ctx: miru.Context) -> None:
         if ctx.author.id == self.author.id and button.label is not None:
             self.answer = button.label.lower()
             self.stop()
@@ -110,6 +110,155 @@ class TriviaView(miru.View):
         self.cancel_button_check(button, ctx)
 
 
+async def rps_player_vs_bot(ctx: lightbulb.Context) -> None:
+    while True:
+        view = RPSView(ctx.author, timeout=60)
+        message = await ctx.respond(
+            f"{ctx.author.mention} Pick a move!", components=view, user_mentions=True
+        )
+        await view.start(message)
+        await view.wait()
+        if hasattr(view, "move") and view.move != "cancel":
+            game_string = f"{ctx.author.mention} Rock, paper, scissors, shoot!"
+            game = await ctx.respond(game_string, user_mentions=True)
+            await asyncio.sleep(2)
+
+            player_move = view.move
+            bot_move = random.choice(list(RPS_EMOTES.keys()))
+
+            game_string += f"\n\n{RPS_EMOTES[player_move]} You chose {player_move}."
+            await game.edit(game_string)
+            await asyncio.sleep(1)
+
+            game_string += f"\n{RPS_EMOTES[bot_move]} I chose {bot_move}."
+            await game.edit(game_string)
+            await asyncio.sleep(1)
+
+            # Get the moves that the bot would win / lose against
+            bot_wins = RPS_WINLOSS[bot_move][0]
+            bot_loses = RPS_WINLOSS[bot_move][1]
+
+            if player_move == bot_wins:
+                game_string += "\n\n**I win!**"
+            elif player_move == bot_loses:
+                game_string += "\n\n**You win.**"
+            else:
+                game_string += "\n\n**It's a draw.**"
+
+            if not ctx.options.continue_after_draw or not game_string.endswith("draw.**"):
+                await game.edit(game_string)
+                break
+
+            game_string += " Running it back."
+            await game.edit(game_string)
+            await asyncio.sleep(1)
+        else:
+            if hasattr(view, "move"):
+                await ctx.respond("Cancelled.")
+            else:
+                await ctx.respond("You took too long. Cancelling.")
+            break
+
+
+async def rps_player_vs_player_accept(ctx: lightbulb.Context) -> None:
+    opponent = ctx.options.opponent
+    accept_view = RPSAcceptView(opponent, timeout=60)
+
+    continue_after_draw_string = ""
+    if ctx.options.continue_after_draw:
+        continue_after_draw_string = " (continue after draw turned off)"
+
+    message = await ctx.respond(
+        (
+            f"{opponent.mention}\n\n{ctx.author.mention} has challenged you to"
+            f" Rock-Paper-Scissors{continue_after_draw_string}!"
+            " Do you accept? You have 60 seconds before the request times out."
+        ),
+        components=accept_view,
+        user_mentions=True,
+    )
+    await accept_view.start(message)
+    await accept_view.wait()
+    if hasattr(accept_view, "option"):
+        if accept_view.option == "accept":
+            await rps_player_vs_player(ctx, opponent)
+        else:
+            await ctx.respond(f"{opponent.mention} has declined the match.")
+    else:
+        await ctx.respond(f"{opponent.mention} took too long to answer.")
+
+
+async def rps_player_vs_player(ctx: lightbulb.Context, opponent: hikari.User) -> None:
+    while True:
+        # Player one (author) picks a move
+        player_one_view = RPSView(ctx.author, timeout=60)
+        player_one_message = await ctx.respond(
+            f"{ctx.author.mention} Pick a move!",
+            components=player_one_view,
+            user_mentions=True,
+        )
+        await player_one_view.start(player_one_message)
+        await player_one_view.wait()
+        if not hasattr(player_one_view, "move") or player_one_view.move == "cancel":
+            if hasattr(player_one_view, "move"):
+                await ctx.respond(f"{ctx.author.mention} ditched the match.")
+            else:
+                await ctx.respond(f"{ctx.author.mention} took too long.")
+            break
+
+        # Player two (opponent) picks a move
+        player_two_view = RPSView(opponent, timeout=60)
+        player_two_message = await ctx.respond(
+            f"{opponent.mention} Pick a move!",
+            components=player_two_view,
+            user_mentions=True,
+        )
+        await player_two_view.start(player_two_message)
+        await player_two_view.wait()
+        if not hasattr(player_two_view, "move") or player_two_view.move == "cancel":
+            if hasattr(player_two_view, "move"):
+                await ctx.respond(f"{opponent.mention} ditched the match.")
+            else:
+                await ctx.respond(f"{opponent.mention} took too long.")
+            break
+
+        game_string = f"{ctx.author.mention} {opponent.mention}\nRock, paper, scissors, shoot!"
+        game = await ctx.respond(game_string, user_mentions=True)
+        await asyncio.sleep(2)
+
+        player_one_move = player_one_view.move
+        player_two_move = player_two_view.move
+
+        # Add both player moves at the same time instead of waiting per player
+        game_string += (
+            f"\n\n{RPS_EMOTES[player_one_move]} {ctx.author.mention} chose"
+            f" {player_one_move}."
+            f"\n{RPS_EMOTES[player_two_move]} {opponent.mention} chose"
+            f" {player_two_move}."
+        )
+        await game.edit(game_string)
+        await asyncio.sleep(1)
+
+        # Decide the outcome
+        player_two_wins = RPS_WINLOSS[player_two_move][0]
+        player_two_loses = RPS_WINLOSS[player_two_move][1]
+
+        if player_one_move == player_two_wins:
+            game_string += f"\n\n**{opponent.mention} wins!**"
+        elif player_one_move == player_two_loses:
+            game_string += f"\n\n**{ctx.author.mention} wins!**"
+        else:
+            game_string += "\n\n**It's a draw.**"
+
+        if not ctx.options.continue_after_draw or not game_string.endswith("draw.**"):
+            await game.edit(game_string)
+            break
+
+        game_string += " Running it back."
+        await game.edit(game_string)
+        await asyncio.sleep(1)
+
+
 @plugin.command
 @lightbulb.option(
     name="opponent",
@@ -126,161 +275,15 @@ class TriviaView(miru.View):
 @lightbulb.command(name="rps", description="Play Rock-Paper-Scissors")
 @lightbulb.implements(lightbulb.SlashCommand)
 async def rps(ctx: lightbulb.Context) -> None:
-    async def player_vs_bot():
-        while True:
-            view = RPSView(ctx.author, timeout=60)
-            message = await ctx.respond(
-                f"{ctx.author.mention} Pick a move!", components=view, user_mentions=True
-            )
-            await view.start(message)
-            await view.wait()
-            if hasattr(view, "move") and view.move != "cancel":
-                game_string = f"{ctx.author.mention} Rock, paper, scissors, shoot!"
-                game = await ctx.respond(game_string, user_mentions=True)
-                await asyncio.sleep(2)
-
-                player_move = view.move
-                bot_move = random.choice(list(RPS_EMOTES.keys()))
-
-                game_string += f"\n\n{RPS_EMOTES[player_move]} You chose {player_move}."
-                await game.edit(game_string)
-                await asyncio.sleep(1)
-
-                game_string += f"\n{RPS_EMOTES[bot_move]} I chose {bot_move}."
-                await game.edit(game_string)
-                await asyncio.sleep(1)
-
-                # Get the moves that the bot would win / lose against
-                bot_wins = RPS_WINLOSS[bot_move][0]
-                bot_loses = RPS_WINLOSS[bot_move][1]
-
-                if player_move == bot_wins:
-                    game_string += "\n\n**I win!**"
-                elif player_move == bot_loses:
-                    game_string += "\n\n**You win.**"
-                else:
-                    game_string += "\n\n**It's a draw.**"
-
-                if not ctx.options.continue_after_draw or not game_string.endswith("draw.**"):
-                    await game.edit(game_string)
-                    break
-
-                game_string += " Running it back."
-                await game.edit(game_string)
-                await asyncio.sleep(1)
-            else:
-                if hasattr(view, "move"):
-                    await ctx.respond("Cancelled.")
-                else:
-                    await ctx.respond("You took too long. Cancelling.")
-                break
-
-    async def player_vs_player_accept():
-        opponent = ctx.options.opponent
-        accept_view = RPSAcceptView(opponent, timeout=60)
-
-        continue_after_draw_string = ""
-        if ctx.options.continue_after_draw:
-            continue_after_draw_string = " (continue after draw turned off)"
-
-        message = await ctx.respond(
-            (
-                f"{opponent.mention}\n\n{ctx.author.mention} has challenged you to"
-                f" Rock-Paper-Scissors{continue_after_draw_string}!"
-                " Do you accept? You have 60 seconds before the request times out."
-            ),
-            components=accept_view,
-            user_mentions=True,
-        )
-        await accept_view.start(message)
-        await accept_view.wait()
-        if hasattr(accept_view, "option"):
-            if accept_view.option == "accept":
-                await player_vs_player(opponent)
-            else:
-                await ctx.respond(f"{opponent.mention} has declined the match.")
-        else:
-            await ctx.respond(f"{opponent.mention} took too long to answer.")
-
-    async def player_vs_player(opponent: hikari.User):
-        while True:
-            # Player one (author) picks a move
-            player_one_view = RPSView(ctx.author, timeout=60)
-            player_one_message = await ctx.respond(
-                f"{ctx.author.mention} Pick a move!",
-                components=player_one_view,
-                user_mentions=True,
-            )
-            await player_one_view.start(player_one_message)
-            await player_one_view.wait()
-            if not hasattr(player_one_view, "move") or player_one_view.move == "cancel":
-                if hasattr(player_one_view, "move"):
-                    await ctx.respond(f"{ctx.author.mention} ditched the match.")
-                else:
-                    await ctx.respond(f"{ctx.author.mention} took too long.")
-                break
-
-            # Player two (opponent) picks a move
-            player_two_view = RPSView(opponent, timeout=60)
-            player_two_message = await ctx.respond(
-                f"{opponent.mention} Pick a move!",
-                components=player_two_view,
-                user_mentions=True,
-            )
-            await player_two_view.start(player_two_message)
-            await player_two_view.wait()
-            if not hasattr(player_two_view, "move") or player_two_view.move == "cancel":
-                if hasattr(player_two_view, "move"):
-                    await ctx.respond(f"{opponent.mention} ditched the match.")
-                else:
-                    await ctx.respond(f"{opponent.mention} took too long.")
-                break
-
-            game_string = f"{ctx.author.mention} {opponent.mention}\nRock, paper, scissors, shoot!"
-            game = await ctx.respond(game_string, user_mentions=True)
-            await asyncio.sleep(2)
-
-            player_one_move = player_one_view.move
-            player_two_move = player_two_view.move
-
-            # Add both player moves at the same time instead of waiting per player
-            game_string += (
-                f"\n\n{RPS_EMOTES[player_one_move]} {ctx.author.mention} chose"
-                f" {player_one_move}."
-                f"\n{RPS_EMOTES[player_two_move]} {opponent.mention} chose"
-                f" {player_two_move}."
-            )
-            await game.edit(game_string)
-            await asyncio.sleep(1)
-
-            # Decide the outcome
-            player_two_wins = RPS_WINLOSS[player_two_move][0]
-            player_two_loses = RPS_WINLOSS[player_two_move][1]
-
-            if player_one_move == player_two_wins:
-                game_string += f"\n\n**{opponent.mention} wins!**"
-            elif player_one_move == player_two_loses:
-                game_string += f"\n\n**{ctx.author.mention} wins!**"
-            else:
-                game_string += "\n\n**It's a draw.**"
-
-            if not ctx.options.continue_after_draw or not game_string.endswith("draw.**"):
-                await game.edit(game_string)
-                break
-
-            game_string += " Running it back."
-            await game.edit(game_string)
-            await asyncio.sleep(1)
-
     opponent = ctx.options.opponent
     if opponent is None or (
         (bot_user := ctx.bot.get_me()) is not None and opponent.id == bot_user.id
     ):
-        await player_vs_bot()
+        await rps_player_vs_bot(ctx)
     elif opponent.id == ctx.author.id:
         await ctx.respond("You can't play against yourself!")
     else:
-        await player_vs_player_accept()
+        await rps_player_vs_player_accept(ctx)
 
 
 @plugin.command

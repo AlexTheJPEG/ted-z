@@ -1,7 +1,7 @@
 import random
 
-from hikari import CommandChoice
 import lightbulb
+from hikari import CommandChoice
 
 from ..utils.opening import open_file
 
