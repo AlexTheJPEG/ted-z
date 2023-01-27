@@ -16,7 +16,8 @@ plugin = lightbulb.Plugin("rand")
 @lightbulb.implements(lightbulb.SlashCommand)
 async def eight_ball(ctx: lightbulb.Context) -> None:
     response = random.choice(EB_RESPONSES)
-    await ctx.respond(f':speech_balloon: "{ctx.options.question}"\n\n:8ball: {response}')
+    question = ctx.options.question
+    await ctx.respond(f':speech_balloon: "{question}"\n\n:8ball: {response}')
 
 
 @plugin.command
@@ -39,8 +40,12 @@ async def eight_ball(ctx: lightbulb.Context) -> None:
 @lightbulb.command(name="roll", description="Roll some dice")
 @lightbulb.implements(lightbulb.SlashCommand)
 async def roll(ctx: lightbulb.Context) -> None:
-    dice_notation = f"{ctx.options.number}d{ctx.options.sides}"
-    dice_rolls = [random.randint(1, ctx.options.sides) for _ in range(ctx.options.number)]
+    number = ctx.options.number
+    sides = ctx.options.sides
+
+    dice_notation = f"{number}d{sides}"
+    dice_rolls = [random.randint(1, sides) for _ in range(number)]
+
     await ctx.respond(f":game_die: Rolled a {dice_notation} and got:\n\n{dice_rolls}")
 
 
@@ -48,7 +53,7 @@ async def roll(ctx: lightbulb.Context) -> None:
 @lightbulb.command(name="coin", description="Flip a coin")
 @lightbulb.implements(lightbulb.SlashCommand)
 async def coin(ctx: lightbulb.Context) -> None:
-    if random.randint(0, 1):
+    if random.getrandbits(1):
         await ctx.respond(f":coin: It's heads.")
     else:
         await ctx.respond(f":coin: It's tails.")
@@ -67,7 +72,9 @@ async def coin(ctx: lightbulb.Context) -> None:
 @lightbulb.command(name="lottery", description="Draw some lottery numbers", ephemeral=True)
 @lightbulb.implements(lightbulb.SlashCommand)
 async def lottery(ctx: lightbulb.Context) -> None:
-    if ctx.options.lottery_type == "powerball":
+    lottery_type = ctx.options.lottery_type
+
+    if lottery_type == "powerball":
         # (USA) Powerball
         # Five numbers (1-69) + one powerball number (1-26)
         five_numbers = [str(random.randint(1, 69)) for _ in range(5)]
@@ -77,7 +84,7 @@ async def lottery(ctx: lightbulb.Context) -> None:
             ":moneybag: Here are your Powerball numbers:\n\n"
             f"{five_numbers_formatted} **({powerball_number})**"
         )
-    elif ctx.options.lottery_type == "megamillions":
+    elif lottery_type == "megamillions":
         # (USA) Mega Millions
         # Five numbers (1-70) + one megaball number (1-25)
         five_numbers = [str(random.randint(1, 70)) for _ in range(5)]
@@ -87,7 +94,7 @@ async def lottery(ctx: lightbulb.Context) -> None:
             ":moneybag: Here are your Mega Millions numbers:\n\n"
             f"{five_numbers_formatted} **({megaball_number})**"
         )
-    elif ctx.options.lottery_type == "euromillions":
+    elif lottery_type == "euromillions":
         # (EUR) EuroMillions
         # Five numbers (1-50) + two lucky star numbers (1-12)
         five_numbers = [str(random.randint(1, 50)) for _ in range(5)]
