@@ -111,9 +111,10 @@ async def badtranslate(ctx: lightbulb.Context) -> None:
             current_src = language
 
             # TODO: Make a progress bar
-            await message.edit(
-                f"{badtranslate_string} ({index + 1}/{ctx.options.iterations} complete)"
-            )
+            if (index + 1) % 2 == 0:
+                await message.edit(
+                    f"{badtranslate_string} ({index + 1}/{ctx.options.iterations} complete)"
+                )
 
         await message.edit(
             f"{badtranslate_string} ({ctx.options.iterations}/{ctx.options.iterations} complete)"
