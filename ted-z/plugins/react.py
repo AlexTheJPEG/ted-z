@@ -21,9 +21,11 @@ plugin = lightbulb.Plugin("react")
 @lightbulb.command(name="yesno", description="Create a yes/no poll")
 @lightbulb.implements(lightbulb.SlashCommand)
 async def yesno(ctx: lightbulb.Context) -> None:
+    question = ctx.options.question
+
     msg = await (
         await ctx.respond(
-            f"{ctx.options.question}\n\n(React :thumbsup: for yes and :thumbsdown: for no)",
+            f"{question}\n\n(React :thumbsup: for yes and :thumbsdown: for no)",
         )
     ).message()
     await msg.add_reaction("👍")
@@ -35,9 +37,9 @@ async def yesno(ctx: lightbulb.Context) -> None:
 @lightbulb.command(name="scale", description="Create a scale from 1-10 poll")
 @lightbulb.implements(lightbulb.SlashCommand)
 async def scale(ctx: lightbulb.Context) -> None:
-    msg = await (
-        await ctx.respond(f"{ctx.options.question}\n\n(React on a scale from 1 to 10)")
-    ).message()
+    question = ctx.options.question
+
+    msg = await (await ctx.respond(f"{question}\n\n(React on a scale from 1 to 10)")).message()
     for number in NUMBER_EMOTES:
         await msg.add_reaction(number)
 
