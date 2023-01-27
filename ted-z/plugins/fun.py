@@ -63,7 +63,11 @@ def create_ground_string(groundee: str, reason: str) -> str:
 @lightbulb.command(name="ground", description="Ground someone")
 @lightbulb.implements(lightbulb.SlashCommand)
 async def ground(ctx: lightbulb.Context) -> None:
-    ground_message = create_ground_string(ctx.options.user.mention, ctx.options.reason)
+    if (bot_user := ctx.bot.get_me()) is not None and ctx.options.user.id == bot_user.id:
+        ground_message = create_ground_string(ctx.author.mention, "try to ground me")
+    else:
+        ground_message = create_ground_string(ctx.options.user.mention, ctx.options.reason)
+
     await ctx.respond(ground_message, user_mentions=True)
 
 
