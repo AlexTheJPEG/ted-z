@@ -9,8 +9,6 @@ from ..utils.web import HEADERS
 
 SLAPS = open_file("slaps.txt")
 
-config = load_bot_settings()
-
 plugin = lightbulb.Plugin("fun")
 
 
@@ -20,16 +18,17 @@ plugin = lightbulb.Plugin("fun")
 @lightbulb.implements(lightbulb.SlashCommand)
 async def slap(ctx: lightbulb.Context) -> None:
     response = random.choice(SLAPS)
+    user = ctx.options.user
 
     # If the user chooses to slap themself
-    if ctx.options.user.mention == ctx.author.mention:
+    if user.id == ctx.author.id:
         slapee = "yourself"
         slap_message = response.format(slapee)
         slap_message = slap_message.replace(" they", " you")
         slap_message = slap_message.replace(" their", " your")
         slap_message = slap_message.replace(" them", " yourself")
     # If the user chooses to slap Ted
-    elif ctx.options.user.mention == ctx.bot.get_me().mention:  # type: ignore
+    elif (bot_user := ctx.bot.get_me()) is not None and user.id == bot_user.id:
         slapee = "me"
         slap_message = response.format(slapee)
         slap_message = slap_message.replace(" they", " I")
@@ -37,7 +36,7 @@ async def slap(ctx: lightbulb.Context) -> None:
         slap_message = slap_message.replace(" them", " me")
     # If the user chooses to slap anyone else
     else:
-        slapee = ctx.options.user.mention
+        slapee = user.mention
         slap_message = response.format(slapee)
 
     await ctx.respond(slap_message, user_mentions=True)
