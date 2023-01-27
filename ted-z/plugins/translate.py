@@ -40,8 +40,10 @@ async def langcodes(ctx: lightbulb.Context) -> None:
 async def translate(ctx: lightbulb.Context) -> None:
     source = ctx.options.source.lower()
     destination = ctx.options.destination.lower()
+
     if ctx.options.source == "detect":
         source = LT_API.detect(ctx.options.phrase)[0]["language"]
+
     match (source, destination):
         case (src, dest) if src in LANGUAGES and dest in LANGUAGES:
             if len(src) != 2:
@@ -56,13 +58,13 @@ async def translate(ctx: lightbulb.Context) -> None:
             )
         case (src, _) if src not in LANGUAGES:
             await ctx.respond(
-                f"The source ({src}) language is either invalid or unsupported!"
+                f':exclamation: The source language "{src}" is either invalid or unsupported!'
                 "\n\nUse `/langcodes` to see what languages you can use."
             )
         case (_, dest) if dest not in LANGUAGES:
             await ctx.respond(
-                f"The destination ({dest}) language is either invalid or unsupported!"
-                "\n\nUse `/langcodes` to see what languages you can use."
+                f':exclamation: The destination language "{dest}" is either invalid or'
+                " unsupported!\n\nUse `/langcodes` to see what languages you can use."
             )
 
 
@@ -83,8 +85,10 @@ async def translate(ctx: lightbulb.Context) -> None:
 @lightbulb.implements(lightbulb.SlashCommand)
 async def badtranslate(ctx: lightbulb.Context) -> None:
     source = ctx.options.source.lower()
-    if ctx.options.source == "detect":
-        source = LT_API.detect(ctx.options.phrase)[0]["language"]
+    original_phrase = ctx.options.phrase
+
+    if source == "detect":
+        source = LT_API.detect(original_phrase)[0]["language"]
     if source not in LANGUAGES:
         await ctx.respond(
             f"The source ({source}) language is either invalid or unsupported!"
@@ -101,7 +105,8 @@ async def badtranslate(ctx: lightbulb.Context) -> None:
         message = await ctx.respond(badtranslate_string)
 
         translated_phrase = ctx.options.phrase
-        used_languages = random.sample(LANGUAGE_CODES, ctx.options.iterations)
+        iterations = ctx.options.iterations
+        used_languages = random.sample(LANGUAGE_CODES, iterations)
 
         current_src = source
 
@@ -111,7 +116,7 @@ async def badtranslate(ctx: lightbulb.Context) -> None:
             current_src = language
 
             if (index + 1) % 2 == 0:
-                ratio = (index + 1) / ctx.options.iterations
+                ratio = (index + 1) / iterations
                 percentage = int(ratio * 100)
                 blocks = int(ratio * 10)
 
@@ -125,7 +130,7 @@ async def badtranslate(ctx: lightbulb.Context) -> None:
 
         language_chain = " -> ".join(used_languages)
         await ctx.respond(
-            f"Translating **{ctx.options.phrase}** from {source} -> {language_chain} ->"
+            f"Translating **{original_phrase}** from {source} -> {language_chain} ->"
             f" {source} gives us:\n\n{translated_phrase}"
         )
 
