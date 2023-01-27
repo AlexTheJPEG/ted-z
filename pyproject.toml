@@ -24,7 +24,7 @@ preview = true
 
 [tool.ruff]
 select = ["E", "F", "C", "I", "ANN", "B", "C4", "SIM", "PTH"]
-ignore = ["ANN002", "ANN003", "ANN101"]
+ignore = ["F841", "ANN002", "ANN003", "ANN101"]
 line-length = 99
 target-version = "py311"
 
