@@ -165,7 +165,7 @@ async def rps_player_vs_player_accept(ctx: lightbulb.Context) -> None:
     accept_view = RPSAcceptView(opponent, timeout=60)
 
     continue_after_draw_string = ""
-    if ctx.options.continue_after_draw:
+    if not ctx.options.continue_after_draw:
         continue_after_draw_string = " (continue after draw turned off)"
 
     message = await ctx.respond(
