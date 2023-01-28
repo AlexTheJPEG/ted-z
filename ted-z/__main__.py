@@ -6,7 +6,7 @@ from .utils.opening import load_bot_settings
 
 CONFIG = load_bot_settings()
 
-INTENTS = Intents.ALL_UNPRIVILEGED
+INTENTS = Intents.ALL_UNPRIVILEGED | Intents.MESSAGE_CONTENT
 
 bot = lightbulb.BotApp(
     CONFIG["bot"]["token"],

@@ -357,6 +357,58 @@ async def trivia(ctx: lightbulb.Context) -> None:
         await ctx.respond("You took too long to answer. Cancelling.")
 
 
+@plugin.command
+@lightbulb.option(
+    name="max_number",
+    description="I'll only think of a number from 1 to (max). (default: 100)",
+    type=int,
+    default=100,
+)
+@lightbulb.command(name="guessinggame", description="Try to guess what number I'm thinking of")
+@lightbulb.implements(lightbulb.SlashCommand)
+async def guessinggame(ctx: lightbulb.Context) -> None:
+    max_ = ctx.options.max_number
+    number = random.randint(1, max_)
+    guesses = 0
+
+    await ctx.respond(
+        f"{ctx.author.mention} I'm thinking of a number between 1 and {max_}...try to guess what"
+        ' it is! (Type "cancel" to cancel.)'
+    )
+
+    while True:
+        response = await ctx.bot.wait_for(
+            hikari.GuildMessageCreateEvent,
+            timeout=60,
+            predicate=lambda e: e.message.author.id == ctx.author.id,
+        )
+        guess = response.message.content
+
+        if guess is not None and guess.isdigit():
+            guesses += 1
+            match int(guess):
+                case num if num < 1 or num > max_:
+                    await response.message.respond(
+                        f"{ctx.author.mention} Your guess isn't between 1 and {max_}...try agian!"
+                    )
+                case num if num > number:
+                    await response.message.respond(
+                        f"{ctx.author.mention} My number is lower. Try again!"
+                    )
+                case num if num < number:
+                    await response.message.respond(
+                        f"{ctx.author.mention} My number is higher. Try again!"
+                    )
+                case _:
+                    await response.message.respond(
+                        f"{ctx.author.mention} You got it! It took you {guesses} tries!"
+                    )
+                    break
+        elif guess is not None and guess.lower() == "cancel":
+            await response.message.respond("Cancelled.")
+            break
+
+
 def load(bot: lightbulb.BotApp) -> None:
     bot.add_plugin(plugin)
 
