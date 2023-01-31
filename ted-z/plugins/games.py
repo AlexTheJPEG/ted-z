@@ -363,6 +363,8 @@ async def trivia(ctx: lightbulb.Context) -> None:
     description="I'll only think of a number from 1 to (max). (default: 100)",
     type=int,
     default=100,
+    min_value=2,
+    max_value=1_000_000,
 )
 @lightbulb.command(name="guessinggame", description="Try to guess what number I'm thinking of")
 @lightbulb.implements(lightbulb.SlashCommand)
