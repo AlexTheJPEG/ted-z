@@ -389,19 +389,21 @@ async def guessinggame(ctx: lightbulb.Context) -> None:
             match int(guess):
                 case num if num < 1 or num > max_:
                     await response.message.respond(
-                        f"{ctx.author.mention} Your guess isn't between 1 and {max_}...try agian!"
+                        f"{ctx.author.mention} Your guess isn't between 1 and {max_}...try agian!",
+                        user_mentions=True,
                     )
                 case num if num > number:
                     await response.message.respond(
-                        f"{ctx.author.mention} My number is lower. Try again!"
+                        f"{ctx.author.mention} My number is lower. Try again!", user_mentions=True
                     )
                 case num if num < number:
                     await response.message.respond(
-                        f"{ctx.author.mention} My number is higher. Try again!"
+                        f"{ctx.author.mention} My number is higher. Try again!", user_mentions=True
                     )
                 case _:
                     await response.message.respond(
-                        f"{ctx.author.mention} You got it! It took you {guesses} tries!"
+                        f"{ctx.author.mention} You got it! It took you {guesses} tries!",
+                        user_mentions=True,
                     )
                     break
         elif guess is not None and guess.lower() == "cancel":
