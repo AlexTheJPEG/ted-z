@@ -3,7 +3,7 @@ import random
 import lightbulb
 from libretranslatepy import LibreTranslateAPI
 
-LT_API = LibreTranslateAPI("https://lt.vern.cc/")
+LT_API = LibreTranslateAPI("https://translate.terraprint.co/")
 LANGUAGE_LIST = LT_API.languages()
 LANGUAGE_DICT = {language["code"]: language["name"].lower() for language in LANGUAGE_LIST}
 LANGUAGE_DICT_REV = {language["name"].lower(): language["code"] for language in LANGUAGE_LIST}
