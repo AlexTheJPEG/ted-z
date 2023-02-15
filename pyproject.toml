@@ -23,7 +23,7 @@ line-length = 99
 preview = true
 
 [tool.ruff]
-select = ["E", "F", "C", "I", "ANN", "B", "C4", "SIM", "PTH"]
+select = ["E", "F", "C90", "I", "ANN", "B", "C4", "SIM", "PTH"]
 ignore = ["F841", "ANN002", "ANN003", "ANN101"]
 line-length = 99
 target-version = "py311"
