@@ -366,6 +366,12 @@ async def trivia(ctx: lightbulb.Context) -> None:
     min_value=2,
     max_value=1_000_000,
 )
+@lightbulb.option(
+    name="public",
+    description="Can anyone try to guess the number? (default: False, only you can guess)",
+    type=bool,
+    default=False,
+)
 @lightbulb.command(name="guessinggame", description="Try to guess what number I'm thinking of")
 @lightbulb.implements(lightbulb.SlashCommand)
 async def guessinggame(ctx: lightbulb.Context) -> None:
@@ -382,29 +388,35 @@ async def guessinggame(ctx: lightbulb.Context) -> None:
         response = await ctx.bot.wait_for(
             hikari.GuildMessageCreateEvent,
             timeout=60,
-            predicate=lambda e: e.message.author.id == ctx.author.id,
+            predicate=lambda e: ctx.options.public or e.message.author.id == ctx.author.id,
         )
-        guess = response.message.content
+        message = response.message
+        guess = message.content
 
         if guess is not None and guess.isdigit():
             guesses += 1
             match int(guess):
                 case num if num < 1 or num > max_:
                     await response.message.respond(
-                        f"{ctx.author.mention} Your guess isn't between 1 and {max_}...try agian!",
+                        (
+                            f"{message.author.mention} Your guess isn't between 1 and {max_}...try"
+                            " agian!"
+                        ),
                         user_mentions=True,
                     )
                 case num if num > number:
                     await response.message.respond(
-                        f"{ctx.author.mention} My number is lower. Try again!", user_mentions=True
+                        f"{message.author.mention} My number is lower. Try again!",
+                        user_mentions=True,
                     )
                 case num if num < number:
                     await response.message.respond(
-                        f"{ctx.author.mention} My number is higher. Try again!", user_mentions=True
+                        f"{message.author.mention} My number is higher. Try again!",
+                        user_mentions=True,
                     )
                 case _:
                     await response.message.respond(
-                        f"{ctx.author.mention} You got it! It took you {guesses} tries!",
+                        f"{message.author.mention} You got it! It took you {guesses} tries!",
                         user_mentions=True,
                     )
                     break
