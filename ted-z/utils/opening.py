@@ -1,7 +1,6 @@
 import json
-from pathlib import Path
-
 import tomllib
+from pathlib import Path
 
 
 def open_file(filename: str) -> list[str]:
