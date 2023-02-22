@@ -44,7 +44,6 @@ async def translate(ctx: lightbulb.Context) -> None:
     if ctx.options.source == "detect":
         source = LT_API.detect(ctx.options.phrase)[0]["language"]
 
-    # Ruff complains here, it's being worked on: https://github.com/charliermarsh/ruff/issues/282
     match (source, destination):
         case (src, dest) if src in LANGUAGES and dest in LANGUAGES:
             if len(src) != 2:
